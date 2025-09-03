@@ -1,0 +1,21 @@
+.bg-color {
+  background: linear-gradient(180deg, #e45464 -13%, #d70018);
+}
+.ant-popover-inner {
+  background: none !important;
+  background-clip: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.bg-linear {
+  background: linear-gradient(
+    177deg,
+    hsla(0, 0%, 100%, 0) 2.65%,
+    hsla(0, 0%, 100%, 0.14) 97.6%
+  );
+}
+.bg-image {
+  background-image: (90deg, #ff512f, #dd2440 51%, #ff512f);
+}

@@ -1,0 +1,35 @@
+import { Divider } from "antd";
+import ButtonCellphoneS from "./ButtonCellphoneS";
+import { TbPointFilled } from "react-icons/tb";
+import GoogleLoginButton from "./GoogleLoginButton";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+
+const LoginByAnother = ({ title }: { title: string }) => {
+  return (
+    <>
+      <div>
+        <Divider className="">
+          <span className="opacity-55 text-[0.9rem]">{title}</span>
+        </Divider>
+        <div className="flex items-center gap-x-2 md:justify-center justify-between">
+          <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+            <GoogleLoginButton />
+          </GoogleOAuthProvider>
+          <TbPointFilled className="text-[1rem] opacity-20 md:text-[1.2rem]" />
+          <ButtonCellphoneS
+            children={
+              <div className="flex items-center justify-center gap-x-1 w-[8rem]">
+                <img src="/images/logo-zalo.120d889f.svg" alt="Zalo Logo" />
+                Zalo
+              </div>
+            }
+            className="bg-white border-gray-400 text-black md:w-[12rem]"
+            defaultHoverBg="white"
+          />
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default LoginByAnother;
