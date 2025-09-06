@@ -48,6 +48,10 @@ const HeaderHome = () => {
   ];
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const handleLogoClick = () => {
+    navigate("/");
+  };
   const [openLogin, setOpenLogin] = useState<boolean>(false);
   return (
     <>
@@ -102,10 +106,16 @@ const HeaderHome = () => {
           </div>
           <div>
             <div className="flex items-center md:gap-x-4 mt-4   ">
-              <div className="md:hidden">
+              <div
+                className="md:hidden cursor-pointer"
+                onClick={handleLogoClick}
+              >
                 <SvgLogo width="38" height="40" />
               </div>
-              <div className="hidden md:block">
+              <div
+                className="hidden md:block cursor-pointer"
+                onClick={handleLogoClick}
+              >
                 <SvgLogoDesktop />
               </div>
               <ButtonCellphoneS

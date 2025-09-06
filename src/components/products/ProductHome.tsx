@@ -7,6 +7,7 @@ import {
   MdOutlineKeyboardArrowRight,
 } from "react-icons/md";
 import { useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import type { CarouselRef } from "antd/es/carousel";
 import { calculateDisplayPrices } from "../../utils/priceHelpers";
 
@@ -17,6 +18,7 @@ interface ProductHomeProps {
 }
 const ProductHome = ({ title, brand, list }: ProductHomeProps) => {
   const carouselRef = useRef<CarouselRef>(null);
+  const navigate = useNavigate();
 
   const handlePrev = () => {
     carouselRef.current?.prev();
@@ -24,6 +26,10 @@ const ProductHome = ({ title, brand, list }: ProductHomeProps) => {
 
   const handleNext = () => {
     carouselRef.current?.next();
+  };
+
+  const handleProductClick = (productId: string | number) => {
+    navigate(`/product/${productId}`);
   };
 
   const setting = {
@@ -119,7 +125,8 @@ const ProductHome = ({ title, brand, list }: ProductHomeProps) => {
                   {items.map((item, index) => (
                     <div
                       key={index}
-                      className="flex flex-col gap-y-3 w-full rounded-lg p-3 shadow-lg cursor-pointer"
+                      className="flex flex-col gap-y-3 w-full rounded-lg p-3 shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
+                      onClick={() => handleProductClick(item.id)}
                     >
                       {item.image_url ? (
                         <img

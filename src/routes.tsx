@@ -3,8 +3,9 @@ import NotFoundPage from "./pages/auth/NotFoundPage";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import HomePage from "./pages/home/HomePage";
-import SimpleHomePage from "./pages/home/SimpleHomePage";
+// import SimpleHomePage from "./pages/home/SimpleHomePage";
 import TestPage from "./pages/TestPage";
+import DetailProductPage from "./pages/product/DetailProductPage";
 import AdminLayout from "./pages/admin/layouts/AdminLayout";
 import Dashboard from "./pages/admin/dashboard/Dashboard";
 import ListCategory from "./pages/admin/category/ListCategory";
@@ -25,9 +26,13 @@ export const routes = createBrowserRouter([
     path: "/",
     element: <HomePage />,
   },
+  // {
+  //   path: "/simple",
+  //   element: <SimpleHomePage />,
+  // },
   {
-    path: "/simple",
-    element: <SimpleHomePage />,
+    path: "/product/:id",
+    element: <DetailProductPage />,
   },
   {
     path: "/test",

@@ -2,6 +2,7 @@ import { API_URL } from "../../constants/API_URL";
 import type {
   ProductProps,
   ProductResponse,
+  SingleProductResponse,
   ProductSelect,
 } from "../../types/api/ProductResponse";
 import axiosInstance from "../axios";
@@ -11,6 +12,12 @@ export const productApi = {
     const response = await axiosInstance.get<ProductResponse<ProductProps>>(
       API_URL.PRODUCT,
       { params }
+    );
+    return response.data;
+  },
+  getById: async (id: string | number) => {
+    const response = await axiosInstance.get<SingleProductResponse<ProductProps>>(
+      `${API_URL.PRODUCT}/${id}`
     );
     return response.data;
   },
