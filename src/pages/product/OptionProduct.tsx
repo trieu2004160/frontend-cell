@@ -8,7 +8,19 @@ import type {
 import { MdDone } from "react-icons/md";
 import { useLocation, useNavigate } from "react-router-dom";
 
-const OptionProduct = ({ group_name }: { group_name: string }) => {
+const OptionProduct = ({
+  group_name,
+  onVariantChange,
+}: {
+  group_name: string;
+  onVariantChange?: (variant: {
+    id: number;
+    variant_name: string;
+    capacity: string;
+    price: string;
+    image_url: string;
+  }) => void;
+}) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [capacity, setCapacity] = useState<ProductVariantCapacity[]>([]);
@@ -97,6 +109,11 @@ const OptionProduct = ({ group_name }: { group_name: string }) => {
     const searchParams = new URLSearchParams(location.search);
     searchParams.set("id_variant", id_variant.toString());
     setCurrentVariant(index);
+
+    // Gọi callback để cập nhật parent component
+    if (onVariantChange && variant[index]) {
+      onVariantChange(variant[index]);
+    }
 
     navigate(`${location.pathname}?${searchParams.toString()}`, {
       replace: true,
