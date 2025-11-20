@@ -5,38 +5,78 @@ import LinkCellphone from "../LinkCellohone";
 import LoginByAnother from "../LoginByAnother";
 import type { LoginFormType } from "../../types/forms/formType";
 import { authApi } from "../../utils/api/auth.api";
-import { useNavigate } from "react-router-dom";
 import { useMessage } from "../../hooks/useMessage";
+import { useState } from "react";
+import { useAuthContext } from "../../contexts/AuthContext";
+import type { UserProps } from "../../types/api/UserResponse";
+
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+}
 
 const FormLogin = () => {
   const [form] = Form.useForm();
-  const navigate = useNavigate();
-  const { contextHolder, showSuccess } = useMessage();
+  const { contextHolder, showSuccess, showError } = useMessage();
+  const [loading, setLoading] = useState(false);
+  const authContext = useAuthContext();
 
   const onFinish = async (values: LoginFormType) => {
     try {
-      const result = await authApi.login(values);
-      if (result.data && result.status === "success") {
-        // Lưu thông tin user vào localStorage
-        localStorage.setItem(
-          "userInfo",
-          JSON.stringify({
-            id: parseInt(result.data.id),
-            email: result.data.email,
-            name: result.data.full_name,
-            avatar_url: result.data.avatar_url || undefined,
-            provider: "local",
-          })
-        );
-        localStorage.setItem("token", result.data.access_token);
+      setLoading(true);
+      console.log("📤 Đang gửi dữ liệu đăng nhập:", values);
 
-        showSuccess(`Chào mừng ${result.data.full_name}!`);
-        setTimeout(() => {
-          navigate("/");
-        }, 1000);
+      const result = await authApi.login(values);
+
+      console.log("✅ Đăng nhập thành công:", result);
+
+      // Lưu tokens và thông tin user vào localStorage
+      if (result.data) {
+        const userData = {
+          id: Number(result.data.id),
+          phone: result.data.phone,
+          email: result.data.email,
+          full_name: result.data.full_name,
+          avatar_url: result.data.avatar_url,
+        };
+
+        localStorage.setItem("access_token", result.data.access_token);
+        localStorage.setItem("refresh_token", result.data.refresh_token);
+        localStorage.setItem("user", JSON.stringify(userData));
+        console.log("💾 Đã lưu tokens và user info vào localStorage");
+        console.log("👤 User data:", userData);
+
+        // Cập nhật AuthContext với user data
+        if (authContext) {
+          if (authContext.setUser) {
+            authContext.setUser(userData as Partial<UserProps> as UserProps);
+          }
+          if (authContext.refreshUser) {
+            authContext.refreshUser();
+          }
+          console.log("🔄 Đã update AuthContext");
+        }
       }
-    } catch (error) {
-      console.log("Error", error);
+
+      showSuccess(result.message || "Đăng nhập thành công!");
+
+      // Force reload để AuthContext được cập nhật
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1000);
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      console.error("❌ Lỗi đăng nhập:", error);
+      console.error("Chi tiết lỗi:", apiError?.response?.data);
+      showError(
+        apiError?.response?.data?.message ||
+          "Đăng nhập thất bại! Vui lòng kiểm tra lại thông tin."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -99,10 +139,13 @@ const FormLogin = () => {
 
             <FormItem>
               <ButtonCellphoneS
-                children="Đăng nhập"
+                loading={loading}
+                disabled={loading}
                 className="text-white w-full"
                 htmlType="submit"
-              />
+              >
+                {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+              </ButtonCellphoneS>
             </FormItem>
 
             <LinkCellphone

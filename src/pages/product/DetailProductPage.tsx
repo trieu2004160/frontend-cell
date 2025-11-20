@@ -44,7 +44,6 @@ const DetailProductPage = () => {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [quantity, setQuantity] = useState(1);
 
   // State for variants
   const [selectedVariant, setSelectedVariant] = useState<{
@@ -215,7 +214,6 @@ const DetailProductPage = () => {
   const handleAddToCart = () => {
     console.log("Add to cart:", {
       productId: product?.id,
-      quantity,
     });
     message.success("Đã thêm sản phẩm vào giỏ hàng!");
   };
@@ -471,33 +469,6 @@ const DetailProductPage = () => {
                     />
                   </div>
                 )}
-              </div>
-
-              {/* Quantity */}
-              <div className="mb-6">
-                <h3 className="font-semibold mb-3">Số lượng</h3>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center border rounded-lg">
-                    <button
-                      className="px-3 py-2 hover:bg-gray-100"
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    >
-                      -
-                    </button>
-                    <span className="px-4 py-2">{quantity}</span>
-                    <button
-                      className="px-3 py-2 hover:bg-gray-100"
-                      onClick={() => setQuantity(quantity + 1)}
-                    >
-                      +
-                    </button>
-                  </div>
-                  <span className="text-green-600 font-medium">
-                    {(product.stock_quantity || 0) > 0
-                      ? `Còn ${product.stock_quantity} sản phẩm`
-                      : "Hết hàng"}
-                  </span>
-                </div>
               </div>
 
               {/* Action Buttons */}

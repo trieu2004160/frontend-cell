@@ -1,13 +1,11 @@
 import { useGoogleLogin } from "@react-oauth/google";
 import { authApi } from "../utils/api/auth.api";
-import { useNavigate } from "react-router-dom";
 import ButtonCellphoneS from "./ButtonCellphoneS";
 import { FcGoogle } from "react-icons/fc";
 import { useState } from "react";
 import { message } from "antd";
 
 const GoogleLoginButton = () => {
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
   const login = useGoogleLogin({
@@ -17,19 +15,28 @@ const GoogleLoginButton = () => {
       try {
         const result = await authApi.loginByGoogle(token);
         if (result.status === "success") {
-          localStorage.setItem(
-            "userInfo",
-            JSON.stringify({
-              id: parseInt(result.data.id),
-              email: result.data.email,
-              name: result.data.full_name,
-              avatar_url: result.data.avatar_url || undefined,
-              provider: result.data.provider || "google",
-            })
-          );
-          localStorage.setItem("token", result.data.access_token);
+          // Lưu với key đúng như AuthContext expect
+          const userData = {
+            id: parseInt(result.data.id),
+            email: result.data.email,
+            full_name: result.data.full_name,
+            phone: result.data.phone || "",
+            avatar_url: result.data.avatar_url || undefined,
+            provider: result.data.provider || "google",
+          };
+          
+          localStorage.setItem("user", JSON.stringify(userData));
+          localStorage.setItem("access_token", result.data.access_token);
+          if (result.data.refresh_token) {
+            localStorage.setItem("refresh_token", result.data.refresh_token);
+          }
+          
           message.success(`Chào mừng ${result.data.full_name}!`);
-          navigate("/");
+          
+          // Force reload để AuthContext được cập nhật
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 1000);
         } else {
           message.error("Đăng nhập thất bại!");
         }

@@ -84,6 +84,31 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
     }
   };
 
+  // Get color-specific image URL - BẠN CÓ THỂ THAY ĐỔI HÌNH ẢNH TẠI ĐÂY
+  const getColorImageUrl = (color: string): string => {
+    const colorImageMap: { [key: string]: string } = {
+      // Natural - Titan tự nhiên (hình gốc chất lượng cao)
+      Natural:
+        "https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-15-pro-max_3.png",
+
+      // Blue - Titan xanh (sử dụng hình chất lượng cao tương tự)
+      Blue: "https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-15-pro-max_3.png",
+
+      // White - Titan trắng (sử dụng hình chất lượng cao tương tự)
+      White:
+        "https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone15-pro-max-512gb-titan-trang.jpg",
+
+      // Black - Titan đen (sử dụng hình chất lượng cao tương tự)
+      Black:
+        "https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-15-pro-max_3.png",
+    };
+
+    return (
+      colorImageMap[color] ||
+      "https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-15-pro-max_3.png"
+    );
+  };
+
   // Process variants data
   const { storages, colors, availableStorages } = useMemo(() => {
     let finalStorages: string[] = [];
@@ -164,16 +189,17 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
         variant_name: `${storage} ${variant.color || ""}`.trim(),
         capacity: storage,
         price: variant.price?.toString() || "0",
-        image_url: variant.image_url || "",
+        image_url: variant.color ? getColorImageUrl(variant.color) : (variant.image_url || ""),
       });
     } else if (onVariantChange) {
       // Không có variant thật - tạo virtual variant với giá ước tính
+      const currentColor = selectedVariant?.color || "Natural"; // Sử dụng màu hiện tại hoặc mặc định
       onVariantChange({
         id: -1, // Virtual variant
         variant_name: storage,
         capacity: storage,
         price: estimatePrice(storage).toString(),
-        image_url: "",
+        image_url: getColorImageUrl(currentColor), // Sử dụng hình ảnh theo màu hiện tại
       });
     }
   };
@@ -187,7 +213,7 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
         variant_name: `${variant.storage || ""} ${color}`.trim(),
         capacity: variant.storage || "",
         price: variant.price?.toString() || "0",
-        image_url: variant.image_url || "",
+        image_url: getColorImageUrl(color), // Sử dụng hàm getColorImageUrl thay vì variant.image_url
       });
     } else if (onVariantChange) {
       // Virtual color variant
@@ -197,7 +223,7 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
         variant_name: `${currentStorage} ${color}`.trim(),
         capacity: currentStorage,
         price: estimatePrice(currentStorage).toString(),
-        image_url: "",
+        image_url: getColorImageUrl(color), // Sử dụng hàm getColorImageUrl cho virtual variant
       });
     }
   };
@@ -273,11 +299,37 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
                     key={color}
                     type={isSelected ? "primary" : "default"}
                     onClick={() => handleColorSelect(color)}
+                    className="flex items-center gap-2 h-auto p-2"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      minHeight: "48px",
+                      border: isSelected
+                        ? "2px solid #1890ff"
+                        : "1px solid #d9d9d9",
+                    }}
                   >
-                    {color}
-                    <span className="ml-1">
-                      ({displayPrice.toLocaleString("vi-VN")}đ)
-                    </span>
+                    {/* Color Image */}
+                    <div className="w-8 h-8 rounded overflow-hidden flex-shrink-0">
+                      <img
+                        src={getColorImageUrl(color)}
+                        alt={color}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // Fallback đồng nhất với hình chất lượng cao
+                          (e.target as HTMLImageElement).src =
+                            "https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-15-pro-max_3.png";
+                        }}
+                      />
+                    </div>
+                    {/* Color Text and Price */}
+                    <div className="flex flex-col items-start text-left">
+                      <span className="font-medium">{color}</span>
+                      <span className="text-sm text-gray-600">
+                        {displayPrice.toLocaleString("vi-VN")}đ
+                      </span>
+                    </div>
                   </Button>
                 );
               })}

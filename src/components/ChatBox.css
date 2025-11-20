@@ -1,0 +1,91 @@
+/* ChatBox Animations */
+.chatbox-container {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Scrollbar Styling */
+.chatbox-container ::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chatbox-container ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.chatbox-container ::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 10px;
+}
+
+.chatbox-container ::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* Message Animations */
+.chatbox-container>div:nth-child(2)>div {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Typing Indicator Animation */
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.animate-bounce {
+    animation: bounce 1s infinite;
+}
+
+/* Button Hover Effect */
+.chatbox-container button:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
+}
+
+/* Input Focus Effect */
+.chatbox-container textarea:focus {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+    .chatbox-container {
+        width: calc(100vw - 32px) !important;
+        height: calc(100vh - 100px) !important;
+        bottom: 16px !important;
+        right: 16px !important;
+    }
+}

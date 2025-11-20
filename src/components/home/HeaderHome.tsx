@@ -1,11 +1,12 @@
 import { TbPointFilled } from "react-icons/tb";
 import Marquee from "react-fast-marquee";
 import { useState, type JSX } from "react";
-import { FaTruckFast } from "react-icons/fa6";
 import { GoArrowSwitch } from "react-icons/go";
 import { AiFillAlert } from "react-icons/ai";
 import SvgLogo from "../svg/SvgLogo";
-import { Badge, Input } from "antd";
+import SvgDelivery from "../svg/SvgDelivery";
+import { Badge, Input, Dropdown, Tabs } from "antd";
+import type { TabsProps } from "antd";
 import { IoMdSearch } from "react-icons/io";
 import { GrMapLocation } from "react-icons/gr";
 import ModalCellphoneS from "../../hooks/ModalCellphoneS";
@@ -22,6 +23,8 @@ import { IoIosArrowDown } from "react-icons/io";
 import { FiShoppingCart } from "react-icons/fi";
 import { FaRegUserCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import "./HeaderHome.css";
+import Svgoto from "../svg/svgoto";
 
 interface MarqueeProps {
   icon: JSX.Element;
@@ -30,11 +33,169 @@ interface MarqueeProps {
 
 const HeaderHome = () => {
   // Check localStorage directly for user authentication
-  const userInfo = localStorage.getItem("userInfo");
+  const userInfo = localStorage.getItem("user");
   const isAuthenticated = !!userInfo;
+  const user = userInfo ? JSON.parse(userInfo) : null;
+
+  const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [openLogin, setOpenLogin] = useState<boolean>(false);
+  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+
+  // Notification tabs items
+  const notificationTabItems: TabsProps["items"] = [
+    {
+      key: "all",
+      label: "Tất cả",
+      children: (
+        <div className="max-h-[400px] overflow-y-auto">
+          <div className="p-3 border-b hover:bg-gray-50 cursor-pointer">
+            <div className="flex items-start gap-3">
+              <div className="text-2xl">
+                <Svgoto />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm">
+                  Đơn hàng{" "}
+                  <span className="font-semibold">02430S2412000478</span> vừa
+                  được giao thành công. Cảm ơn bạn đã đặt hàng tại CellphoneS.
+                </p>
+                <p className="text-xs text-gray-400 mt-1">11 tháng trước</p>
+              </div>
+            </div>
+          </div>
+          <div className="p-3 border-b hover:bg-gray-50 cursor-pointer">
+            <div className="flex items-start gap-3">
+              <div className="text-2xl relative">
+                <SvgDelivery />
+
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm">
+                  Đơn hàng{" "}
+                  <span className="font-semibold">02430S2412000478</span> đã
+                  được cửa hàng xác nhận và sẽ giao tới bạn trong thời gian sớm
+                  nhất.
+                </p>
+                <p className="text-xs text-gray-400 mt-1">11 tháng trước</p>
+              </div>
+            </div>
+          </div>
+          <div className="p-3 border-b hover:bg-gray-50 cursor-pointer">
+            <div className="flex items-start gap-3">
+              <div className="text-2xl">
+                <Svgoto />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm">
+                  Đơn hàng{" "}
+                  <span className="font-semibold">02430S2406000027</span> vừa
+                  được giao thành công. Cảm ơn bạn đã đặt hàng tại CellphoneS.
+                </p>
+                <p className="text-xs text-gray-400 mt-1">1 năm trước</p>
+              </div>
+            </div>
+          </div>
+          <div className="p-3 border-b hover:bg-gray-50 cursor-pointer">
+            <div className="flex items-start gap-3">
+              <div className="text-2xl relative">
+                <SvgDelivery />
+
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm">
+                  Đơn hàng{" "}
+                  <span className="font-semibold">02430S2406000027</span> đã
+                  được cửa hàng xác nhận và sẽ giao tới bạn trong thời gian sớm
+                  nhất.
+                </p>
+                <p className="text-xs text-gray-400 mt-1">1 năm trước</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "orders",
+      label: "Đơn hàng",
+      children: (
+        <div className="max-h-[400px] overflow-y-auto">
+          <div className="p-3 border-b hover:bg-gray-50 cursor-pointer">
+            <div className="flex items-start gap-3">
+              <Svgoto />
+              <div className="text-2xl"></div>
+              <div className="flex-1">
+                <p className="text-sm">
+                  Đơn hàng{" "}
+                  <span className="font-semibold">02430S2412000478</span> vừa
+                  được giao thành công.
+                </p>
+                <p className="text-xs text-gray-400 mt-1">11 tháng trước</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "comments",
+      label: "Bình luận",
+      children: (
+        <div className="p-8 text-center text-gray-400">
+          Chưa có bình luận nào
+        </div>
+      ),
+    },
+  ];
+
+  // User dropdown menu with Smember access
+  const userDropdownContent = (
+    <div className="w-[380px] bg-white rounded-lg shadow-lg">
+      {/* Smember Access Section */}
+      <div
+        className="flex items-center justify-between p-4 border-b hover:bg-gray-50 cursor-pointer"
+        onClick={() => navigate("/smember")}
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+            <img
+              src="https://cdn2.cellphones.com.vn/x/media/wysiwyg/smember230625.png"
+              alt="Smember"
+            />
+          </div>
+          <span className="font-medium text-red-500">Truy cập Smember</span>
+        </div>
+        <IoIosArrowDown className="rotate-[-90deg] text-gray-400" />
+      </div>
+
+      {/* Notification Tabs */}
+      <div className="border-b">
+        <p className="px-4 pt-3 pb-2 font-medium text-sm">Thông báo</p>
+        <Tabs
+          defaultActiveKey="all"
+          items={notificationTabItems}
+          className="notification-tabs px-2"
+        />
+      </div>
+
+      {/* Bottom Action Button */}
+      <div className="p-3">
+        <button
+          className="w-full py-2 text-center text-blue-500 hover:bg-blue-50 rounded transition-colors"
+          onClick={() => setDropdownOpen(false)}
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+  );
+
   const marquee: MarqueeProps[] = [
     {
-      icon: <FaTruckFast />,
+      icon: <GoArrowSwitch />,
       content: "Giao nhanh - Miễn phí cho đơn 300k",
     },
     {
@@ -46,15 +207,20 @@ const HeaderHome = () => {
       content: "Sản phẩm Chính hãng - Xuất VAT đầy đủ",
     },
   ];
-  const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const handleLogoClick = () => {
     navigate("/");
   };
-  const [openLogin, setOpenLogin] = useState<boolean>(false);
   return (
     <>
+      {/* Overlay mờ khi dropdown mở */}
+      {dropdownOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={() => setDropdownOpen(false)}
+        />
+      )}
+
       <div className="bg-color md:w-full pb-4 sticky top-0 left-0 z-50">
         <div className="w-full px-64">
           <div className=" md:flex md:items-center md:px-[1rem]">
@@ -156,20 +322,25 @@ const HeaderHome = () => {
                     </Badge>
                   </div>
                   {isAuthenticated ? (
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">
-                        Xin chào, {JSON.parse(userInfo || "{}").name || "User"}
-                      </span>
-                      <button
-                        onClick={() => {
-                          localStorage.removeItem("userInfo");
-                          window.location.reload();
-                        }}
-                        className="text-xs text-gray-500 hover:text-red-500"
-                      >
-                        Đăng xuất
-                      </button>
-                    </div>
+                    <Dropdown
+                      dropdownRender={() => userDropdownContent}
+                      placement="bottomRight"
+                      trigger={["click"]}
+                      open={dropdownOpen}
+                      onOpenChange={setDropdownOpen}
+                    >
+                      <ButtonCellphoneS
+                        className="bg-[#e45464] text-white"
+                        children={
+                          <div className="flex items-center gap-x-2">
+                            <span className="whitespace-nowrap text-[0.9rem]">
+                              {user?.full_name || "User"}
+                            </span>
+                            <FaRegUserCircle className="text-white text-[1.5rem]" />
+                          </div>
+                        }
+                      />
+                    </Dropdown>
                   ) : (
                     <ButtonCellphoneS
                       className="bg-[#e45464]"

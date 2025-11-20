@@ -23,6 +23,7 @@ import AdminProducts from "./pages/admin/AdminProducts";
 import AdminProductImages from "./pages/admin/AdminProductImages";
 import CreateProductImage from "./pages/admin/product-images/CreateProductImage";
 import EditProductImage from "./pages/admin/product-images/EditProductImage";
+import SmemberPage from "./pages/user/SmemberPage";
 
 export const routes = createBrowserRouter([
   {
@@ -48,6 +49,10 @@ export const routes = createBrowserRouter([
   {
     path: "/register",
     element: <RegisterPage />,
+  },
+  {
+    path: "/smember",
+    element: <SmemberPage />,
   },
   {
     path: "*",

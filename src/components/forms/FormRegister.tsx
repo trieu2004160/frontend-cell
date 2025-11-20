@@ -1,4 +1,4 @@
-import { Checkbox, DatePicker, Divider, Form, Input } from "antd";
+import { Checkbox, DatePicker, Divider, Form, Input, message } from "antd";
 import { IoMdCheckmark } from "react-icons/io";
 import { IoInformationCircleSharp } from "react-icons/io5";
 import LinkCellphone from "../LinkCellohone";
@@ -14,19 +14,30 @@ const FormRegister = () => {
   const navigate = useNavigate();
   const { contextHolder, showSuccess } = useMessage();
   const onSubmit = async (data: RegisterFormType) => {
+    console.log("🚀 Form submitted with data:", data);
     try {
+      console.log("📤 Calling register API...");
       const result = await authApi.register({
         ...data,
         date_of_birth: dayjs(data.date_of_birth).format("YYYY-MM-DD"),
       });
+      console.log("✅ API Response:", result);
+      
       if (result.data && result.status === "success") {
+        console.log("🎉 Registration successful!");
         showSuccess(result.message);
         setTimeout(() => {
+          console.log("🔄 Navigating to login...");
           navigate("/login");
         }, 1000);
+      } else {
+        console.error("❌ Registration failed:", result);
+        message.error(result.message || "Đăng ký thất bại!");
       }
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      console.error("❌ Registration error:", error);
+      console.error("Error details:", error?.response?.data);
+      message.error(error?.response?.data?.message || "Đăng ký thất bại! Vui lòng thử lại.");
     }
   };
   return (

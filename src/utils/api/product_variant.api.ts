@@ -86,7 +86,7 @@ export const getProductVariants = async (productId: number, capacity?: string): 
   }
 
   try {
-    const url = capacity 
+    const url = capacity
       ? `${API_URL}/product-variants/${productId}?capacity=${capacity}`
       : `${API_URL}/product-variants/${productId}`;
     const response = await axios.get(url);
@@ -106,7 +106,7 @@ export const productVariantApi = {
       return response.data;
     } catch {
       console.log('API call failed for getCapacity, returning empty data');
-      
+
       return {
         status: "error",
         message: "No capacities found",
@@ -120,33 +120,33 @@ export const productVariantApi = {
     try {
       // First try to get variants from database
       const response = await axios.get(`${API_URL}/product-variants/capacity/${capacity}/group/${group_name}`);
-      
+
       // If successful, try to get corresponding images from product_images table
       if (response.data.status === 'success' && response.data.data.length > 0) {
         const variants = response.data.data;
-        
+
         // Get product ID from first variant
         const productId = variants[0].product_id;
-        
+
         // Try to get variant images
         try {
           const imageResponse = await axios.get(`${API_URL}/admin/product-images/product/${productId}/variant?capacity=${capacity}`);
-          
+
           if (imageResponse.data.status === 'success') {
             // Match variants with their images
             const variantsWithImages = variants.map((variant: ProductVariant) => {
-              const matchingImage = imageResponse.data.data.find((img: ProductImage) => 
-                img.variant_capacity === capacity && 
+              const matchingImage = imageResponse.data.data.find((img: ProductImage) =>
+                img.variant_capacity === capacity &&
                 img.variant_color && variant.color &&
                 img.variant_color.toLowerCase().includes(variant.color.toLowerCase())
               );
-              
+
               return {
                 ...variant,
                 image_url: matchingImage ? matchingImage.image_url : variant.image_url
               };
             });
-            
+
             return {
               ...response.data,
               data: variantsWithImages
@@ -156,11 +156,11 @@ export const productVariantApi = {
           console.log('Could not fetch variant images, using original data');
         }
       }
-      
+
       return response.data;
     } catch {
       console.log('API call failed for getVariantByCapacity, returning empty data');
-      
+
       return {
         status: "error",
         message: "No variants found",
@@ -176,11 +176,29 @@ export const productVariantApi = {
       return response.data;
     } catch {
       console.log('API call failed for getVariantById, returning empty data');
-      
+
       return {
         status: "error",
         message: "Variant not found",
         data: null
+      };
+    }
+  },
+
+  // Get variants by multiple IDs
+  getVariantByIds: async (ids: number[]) => {
+    try {
+      const response = await axios.get(`${API_URL}/product-variants/many-id`, {
+        params: { ids: ids.join(",") }
+      });
+      return response.data;
+    } catch {
+      console.log('API call failed for getVariantByIds, returning empty data');
+
+      return {
+        status: "error",
+        message: "Variants not found",
+        data: []
       };
     }
   }

@@ -19,6 +19,7 @@ import SpecialBrand from "../../components/home/SpecialBrand";
 import SuggestForYou from "../../components/home/SuggestForYou";
 import ProductWatched from "../../components/home/ProductWatched";
 import NavbarMobile from "../../components/home/NavbarMobile";
+import ChatBox from "../../components/ChatBox";
 
 const HomePage = () => {
   return (
@@ -64,15 +65,15 @@ const HomePage = () => {
         <div className="md:px-[15.5rem] px-4 bg-[#ffffff] flex flex-col gap-y-4">
           <CategoryHome />
           <img
-            src="/images/special-b2s-dday2-desk.gif"
+            src="https://cdn2.cellphones.com.vn/insecure/rs:fill:1200:75/q:90/plain/https://dashboard.cellphones.com.vn/storage/s-edu-2-0-special-desk.gif"
             className="rounded-lg w-full h-full object-cover hidden md:block"
             alt="Banner khuyến mãi đặc biệt desktop"
           />
-          <img
+          {/* <img
             src="/images/special-b2s-dday2-mb.gif"
             className="rounded-lg w-full h-full object-cover md:hidden"
             alt="Banner khuyến mãi đặc biệt mobile"
-          />
+          /> */}
           {/* <FlashSale /> */}
           <SuggestForYou />
           <SmartphoneList />
@@ -90,6 +91,9 @@ const HomePage = () => {
         </div>
         <NavbarMobile />
         <FooterHome />
+
+        {/* ChatBox with AI API */}
+        <ChatBox />
       </div>
     </>
   );
