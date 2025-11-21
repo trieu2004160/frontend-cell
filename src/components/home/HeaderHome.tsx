@@ -24,7 +24,7 @@ import { FiShoppingCart } from "react-icons/fi";
 import { FaRegUserCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import "./HeaderHome.css";
-import Svgoto from "../svg/svgoto";
+import Svgoto from "../svg/Svgoto";
 
 interface MarqueeProps {
   icon: JSX.Element;

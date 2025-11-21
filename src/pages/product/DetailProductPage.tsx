@@ -38,7 +38,7 @@ interface ProductDetail {
 }
 
 const DetailProductPage = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id, slug } = useParams<{ id?: string; slug?: string }>();
   const navigate = useNavigate();
   const [product, setProduct] = useState<ProductDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -58,14 +58,15 @@ const DetailProductPage = () => {
   // Load product data from API
   useEffect(() => {
     const loadProduct = async () => {
-      if (!id) {
+      const identifier = slug || id;
+      if (!identifier) {
         navigate("/");
         return;
       }
 
       try {
         setLoading(true);
-        const response = await productApi.getById(id);
+        const response = await productApi.getById(identifier);
         console.log("API Response:", response); // Debug log
         console.log("API Response Data:", response.data); // Debug log
         console.log("API Response Variants:", response.data.variants); // Debug variants

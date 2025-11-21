@@ -28,45 +28,19 @@ interface Message {
 const ChatBox = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Load messages from localStorage on mount
-  const [messages, setMessages] = useState<Message[]>(() => {
-    const saved = localStorage.getItem("chatbox_messages");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        return parsed.map((msg: any) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp),
-        }));
-      } catch {
-        return [
-          {
-            id: "1",
-            text: "Xin chào! Tôi là trợ lý ảo của CellphoneS. Tôi có thể giúp gì cho bạn?",
-            sender: "bot",
-            timestamp: new Date(),
-          },
-        ];
-      }
-    }
-    return [
-      {
-        id: "1",
-        text: "Xin chào! Tôi là trợ lý ảo của CellphoneS. Tôi có thể giúp gì cho bạn?",
-        sender: "bot",
-        timestamp: new Date(),
-      },
-    ];
-  });
+  // Messages chỉ lưu trong session, không lưu localStorage
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: "1",
+      text: "Xin chào! Tôi là trợ lý ảo của CellphoneS. Tôi có thể giúp gì cho bạn?",
+      sender: "bot",
+      timestamp: new Date(),
+    },
+  ]);
 
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Save messages to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem("chatbox_messages", JSON.stringify(messages));
-  }, [messages]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

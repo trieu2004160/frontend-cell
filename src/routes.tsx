@@ -39,6 +39,10 @@ export const routes = createBrowserRouter([
     element: <DetailProductPage />,
   },
   {
+    path: "/dtdd/:slug",
+    element: <DetailProductPage />,
+  },
+  {
     path: "/test",
     element: <TestPage />,
   },
