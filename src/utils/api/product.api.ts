@@ -28,6 +28,19 @@ export const productApi = {
     );
     return response.data;
   },
+  update: async (id: string | number, payload: ProductProps) => {
+    const response = await axiosInstance.patch<ProductResponse<ProductProps>>(
+      `${API_URL.PRODUCT}/${id}`,
+      payload
+    );
+    return response.data;
+  },
+  delete: async (id: string | number) => {
+    const response = await axiosInstance.delete<ProductResponse<ProductProps>>(
+      `${API_URL.PRODUCT}/${id}`
+    );
+    return response.data;
+  },
   getAllName: async () => {
     const repsonse = await axiosInstance.get<ProductResponse<ProductSelect>>(
       API_URL.OTHER_PRODUCT.GET_ALL_NAME

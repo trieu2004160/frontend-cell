@@ -67,31 +67,30 @@ const DetailProductPage = () => {
       try {
         setLoading(true);
         const response = await productApi.getById(identifier);
-        console.log("API Response:", response); // Debug log
-        console.log("API Response Data:", response.data); // Debug log
-        console.log("API Response Variants:", response.data.variants); // Debug variants
+        console.log("API Response:", response);
+        console.log("API Response Data:", response.data);
+        console.log("API Response Variants:", response.data.variants);
 
         if (response.status === "success" && response.data) {
-          // Transform backend data to frontend format
-          const apiProduct = response.data; // response.data is single object, not array
+          const apiProduct = response.data;
           const productData: ProductDetail = {
             id: apiProduct.id,
             name: apiProduct.name,
             description: apiProduct.description || apiProduct.short_description,
             short_description: apiProduct.short_description,
             price: parseFloat(
-              apiProduct.sale_price || apiProduct.original_price
+              String(apiProduct.sale_price || apiProduct.original_price)
             ),
-            original_price: parseFloat(apiProduct.original_price),
+            original_price: parseFloat(String(apiProduct.original_price)),
             image_url: apiProduct.image_url,
             category_name: apiProduct.category_name,
             brand_name: apiProduct.brand_name,
-            specifications: {}, // Default empty specifications
+            specifications: {},
             images: apiProduct.images || [],
-            stock_quantity: apiProduct.stock_quantity || 10, // Use real stock quantity
+            stock_quantity: apiProduct.stock_quantity || 10,
             warranty_period: apiProduct.warranty_period,
-            rating: 4.5, // Default rating
-            reviewCount: 25, // Default review count
+            rating: 4.5,
+            reviewCount: 25,
             variants: (apiProduct.variants || []).map(
               (v: {
                 id: number;
@@ -110,15 +109,14 @@ const DetailProductPage = () => {
                 stock_quantity: v.stock_quantity || 0,
                 is_active: v.is_active || false,
               })
-            ), // Add variants from API
+            ),
           };
 
           setProduct(productData);
-          console.log("Product Data:", productData); // Debug log
-          console.log("Product Variants:", productData.variants); // Debug variants
-          console.log("Product Images:", productData.images); // Debug images
+          console.log("Product Data:", productData);
+          console.log("Product Variants:", productData.variants);
+          console.log("Product Images:", productData.images);
 
-          // Set initial price
           setCurrentPrice(productData.price);
         } else {
           message.error("Không thể tải thông tin sản phẩm");
@@ -134,64 +132,41 @@ const DetailProductPage = () => {
     };
 
     loadProduct();
-  }, [id, navigate]);
+  }, [id, slug, navigate]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN").format(price) + "đ";
   };
 
-  // Callback functions for OptionProduct
-  const handleVariantChange = (variant: {
-    id: number;
-    variant_name: string;
-    capacity: string;
-    price: string;
-    image_url: string;
-  }) => {
-    setSelectedVariant(variant);
-
-    // Kiểm tra nếu là virtual variant (ID âm)
-    if (variant.id === -1) {
-      // Virtual variant - hết hàng
-      message.warning(`Dung lượng ${variant.capacity} hiện đang hết hàng!`);
-      setCurrentPrice(product?.price || 0); // Giữ nguyên giá gốc
-    } else {
-      // Variant có sẵn trong database
-      setCurrentPrice(parseFloat(variant.price));
-
-      // Cập nhật hình ảnh chính theo variant được chọn
-      const validImages = getValidImages();
-      const variantImageIndex = validImages.findIndex(
-        (img) => img === variant.image_url
-      );
-      if (variantImageIndex !== -1) {
-        setSelectedImage(variantImageIndex);
-      }
-    }
-  };
-
   const getValidImages = () => {
     const validImages: string[] = [];
 
-    // Thêm hình ảnh chính của sản phẩm trước
-    if (product?.image_url) {
-      validImages.push(product.image_url);
-    }
-
-    // Thêm hình ảnh từ variant được chọn (nếu khác hình chính)
-    if (
-      selectedVariant?.image_url &&
-      !validImages.includes(selectedVariant.image_url)
-    ) {
+    // Ưu tiên hình ảnh từ variant được chọn lên đầu
+    if (selectedVariant?.image_url) {
       validImages.push(selectedVariant.image_url);
     }
 
-    // Thêm tất cả hình ảnh từ variants (tạo gallery từ các màu sắc)
+    // Thêm hình ảnh chính của sản phẩm (nếu chưa có)
+    if (product?.image_url && !validImages.includes(product.image_url)) {
+      validImages.push(product.image_url);
+    }
+
+    // Thêm hình ảnh từ variants (lọc theo dung lượng đang chọn)
     if (product?.variants?.length) {
+      let relevantVariants = product.variants;
+
+      // Nếu đã chọn variant (có dung lượng), chỉ lấy ảnh của các variant cùng dung lượng
+      if (selectedVariant?.capacity) {
+        const normalize = (s: string) => s.replace(/\s+/g, "").toUpperCase();
+        const activeStorage = normalize(selectedVariant.capacity);
+        relevantVariants = product.variants.filter(
+          (v) => normalize(v.storage || "") === activeStorage
+        );
+      }
+
       const uniqueImages = [
-        ...new Set(product.variants.map((v) => v.image_url)),
+        ...new Set(relevantVariants.map((v) => v.image_url)),
       ];
-      console.log("🖼️ Unique variant images:", uniqueImages);
       uniqueImages.forEach((img) => {
         if (img && !validImages.includes(img)) {
           validImages.push(img);
@@ -208,8 +183,27 @@ const DetailProductPage = () => {
       });
     }
 
-    console.log("🖼️ Final valid images:", validImages);
     return validImages.length > 0 ? validImages : ["/images/placeholder.jpg"];
+  };
+
+  const handleVariantChange = (variant: {
+    id: number;
+    variant_name: string;
+    capacity: string;
+    price: string;
+    image_url: string;
+  }) => {
+    console.log("DetailProductPage received variant:", variant);
+    setSelectedVariant(variant);
+    setSelectedImage(0); // Reset về ảnh đầu tiên (ảnh variant)
+
+    if (variant.id === -1) {
+      message.warning(`Dung lượng ${variant.capacity} hiện đang hết hàng!`);
+      setCurrentPrice(product?.price || 0);
+      return;
+    }
+
+    setCurrentPrice(parseFloat(variant.price));
   };
 
   const handleAddToCart = () => {
@@ -219,7 +213,6 @@ const DetailProductPage = () => {
     message.success("Đã thêm sản phẩm vào giỏ hàng!");
   };
 
-  // Parse specifications from JSON string
   const getSpecifications = () => {
     if (!product?.specifications) return {};
 
@@ -256,8 +249,6 @@ const DetailProductPage = () => {
   }
 
   const specifications = getSpecifications();
-
-  // Sử dụng function getValidImages để có hình ảnh phù hợp với variant
   const productImages = getValidImages();
 
   const tabItems = [
@@ -323,7 +314,7 @@ const DetailProductPage = () => {
       <HeaderHome />
 
       <div className="container mx-auto px-4 py-6">
-        <div className=" rounded-lg  px-60">
+        <div className="rounded-lg px-60">
           {/* Breadcrumb */}
           <div className="text-xs text-gray-600 mb-4">
             <span
@@ -396,11 +387,10 @@ const DetailProductPage = () => {
                   {productImages.map((image, index) => (
                     <div
                       key={index}
-                      className={`w-20 h-20 flex-shrink-0 rounded border-2 overflow-hidden cursor-pointer p-2 bg-white transition-all ${
-                        selectedImage === index
+                      className={`w-20 h-20 flex-shrink-0 rounded border-2 overflow-hidden cursor-pointer p-2 bg-white transition-all ${selectedImage === index
                           ? "border-red-500 shadow-md"
                           : "border-gray-200 hover:border-gray-300"
-                      }`}
+                        }`}
                       onClick={() => setSelectedImage(index)}
                       title={`Hình ảnh ${index + 1}`}
                     >
@@ -413,7 +403,6 @@ const DetailProductPage = () => {
                             `❌ Failed to load image ${index + 1}:`,
                             image
                           );
-                          // Fallback to Natural Titanium image
                           (e.target as HTMLImageElement).src =
                             "https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-15-pro-max_3.png";
                         }}

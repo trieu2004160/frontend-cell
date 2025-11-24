@@ -20,11 +20,11 @@ const ScreenList = () => {
       name: "OPPO",
     },
   ];
+
   const fetchProducts = async () => {
     try {
-      // Lấy sản phẩm từ category "Màn hình" (id=12) thay vì lấy tất cả
-      const result = await productApi.getAll({ category_id: "12 " });
-
+      // Lấy sản phẩm từ category "Màn hình" (id=12)
+      const result = await productApi.getAll({ category_id: "12" });
       setDataProducts(result.data);
     } catch (error) {
       console.log(error);
@@ -34,6 +34,7 @@ const ScreenList = () => {
   useEffect(() => {
     fetchProducts();
   }, []);
+
   return (
     <>
       <div>

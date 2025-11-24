@@ -21,7 +21,9 @@ const TiviList = () => {
   ];
   const fetchProducts = async () => {
     try {
-      const result = await productApi.getAll({ all: true });
+      // TV category doesn't exist yet
+      // Using non-existent category will return empty array
+      const result = await productApi.getAll({ category_id: "996" });
       setDataProducts(result.data);
     } catch (error) {
       console.log(error);

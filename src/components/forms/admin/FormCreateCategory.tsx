@@ -25,7 +25,7 @@ const FormCreateCategory = () => {
       const result = await categoryApi.getAllNameCategories();
       setAllCategories(result.data);
     } catch (error) {
-      showError(error as string);
+      showError((error as any).message || "An error occurred");
     }
   };
 
@@ -40,7 +40,7 @@ const FormCreateCategory = () => {
         navigate(-1);
       }, 1500);
     } catch (error) {
-      showError(error as string);
+      showError((error as any).message || "An error occurred");
     }
   };
   const handleImageApi = (image_url: string | undefined) => {

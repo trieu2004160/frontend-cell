@@ -20,7 +20,7 @@ const FormCreateBrand = () => {
         navigate(-1);
       }, 1500);
     } catch (error) {
-      showError(error as string);
+      showError((error as any).message || "An error occurred");
     }
   };
   const handleImageApi = (image_url: string | undefined) => {

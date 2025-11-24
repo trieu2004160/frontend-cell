@@ -10,6 +10,7 @@ import type { TabsProps } from "antd";
 import { IoMdSearch } from "react-icons/io";
 import { GrMapLocation } from "react-icons/gr";
 import ModalCellphoneS from "../../hooks/ModalCellphoneS";
+import LocationModal from "../modals/LocationModal";
 import ButtonCellphoneS from "../ButtonCellphoneS";
 import { GoBell } from "react-icons/go";
 import SpaceCellphoneS from "../SpaceCellphoneS";
@@ -41,6 +42,8 @@ const HeaderHome = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [openLogin, setOpenLogin] = useState<boolean>(false);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState<boolean>(false);
+  const [selectedLocation, setSelectedLocation] = useState<string>("Hồ Chí Minh");
 
   // Notification tabs items
   const notificationTabItems: TabsProps["items"] = [
@@ -300,16 +303,25 @@ const HeaderHome = () => {
                 children={
                   <div className="flex items-center gap-x-2">
                     <GrMapLocation className="text-[1.5rem]" />
-                    <p className="text-[0.8rem]">Bình Định</p>
+                    <div className="flex flex-col items-start leading-tight">
+                      <p className="text-[0.65rem]">Xem giá tại</p>
+                      <p className="text-[0.8rem] font-bold">{selectedLocation}</p>
+                    </div>
                     <IoIosArrowDown className="text-[1.2rem]" />
                   </div>
                 }
-                onClick={() => setIsOpen(true)}
+                onClick={() => setIsLocationModalOpen(true)}
               />
               <Input
                 placeholder="Bạn muốn mua gì hôm nay?"
                 prefix={<IoMdSearch className="text-[1.5rem]" />}
                 className="py-2"
+                onPressEnter={(e) => {
+                  const value = (e.target as HTMLInputElement).value;
+                  if (value.trim()) {
+                    navigate(`/search?search=${encodeURIComponent(value.trim())}`);
+                  }
+                }}
               />
               <div className="hidden md:block">
                 <div className="md:flex md:items-center md:gap-x-4">
@@ -364,16 +376,22 @@ const HeaderHome = () => {
                   <p className="text-[0.8rem]">
                     Xem giá tại
                     <br />
-                    Bình Định
+                    {selectedLocation}
                   </p>
                 </div>
               }
-              onClick={() => setIsOpen(true)}
+              onClick={() => setIsLocationModalOpen(true)}
             />
             <ModalCellphoneS
               children={"Le Doan Hieu"}
               open={isOpen}
               onCancel={() => setIsOpen(false)}
+            />
+            <LocationModal
+              isOpen={isLocationModalOpen}
+              onClose={() => setIsLocationModalOpen(false)}
+              selectedLocation={selectedLocation}
+              onSelectLocation={setSelectedLocation}
             />
             <Badge size="small" count={5} className="md:hidden">
               <GoBell className="text-[1.4rem] text-white" />

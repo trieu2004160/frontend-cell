@@ -34,7 +34,8 @@ const SmartphoneList = () => {
   ];
   const fetchProducts = async () => {
     try {
-      const result = await productApi.getAll({ all: true });
+      // Lấy sản phẩm từ category "Điện thoại" (id=1)
+      const result = await productApi.getAll({ category_id: "1" });
       setDataProducts(sliceArray(result.data, 2));
     } catch (error) {
       console.log(error);

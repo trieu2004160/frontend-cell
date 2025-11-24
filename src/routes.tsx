@@ -6,6 +6,7 @@ import HomePage from "./pages/home/HomePage";
 // import SimpleHomePage from "./pages/home/SimpleHomePage";
 import TestPage from "./pages/TestPage";
 import DetailProductPage from "./pages/product/DetailProductPage";
+import SearchPage from "./pages/search/SearchPage";
 import AdminLayout from "./pages/admin/layouts/AdminLayout";
 import Dashboard from "./pages/admin/dashboard/Dashboard";
 import ListCategory from "./pages/admin/category/ListCategory";
@@ -45,6 +46,10 @@ export const routes = createBrowserRouter([
   {
     path: "/test",
     element: <TestPage />,
+  },
+  {
+    path: "/search",
+    element: <SearchPage />,
   },
   {
     path: "/login",

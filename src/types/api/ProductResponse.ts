@@ -3,29 +3,28 @@ export interface ProductProps {
   name: string;
   slug: string;
   sku: string;
-  category_id: string;
-  brand_id: string;
+  category_id: number | string; // Accept both for flexibility
+  brand_id: number | string; // Accept both for flexibility
   short_description: string;
-  description?: string; // Backend returns 'description' field
-  full_description: string;
-  price?: string; // For backward compatibility
-  original_price: string; // Match API response
-  sale_price: string;
-  cost_price: string;
-  weight: string;
+  description: string;
+  original_price: string | number;
+  sale_price: string | number;
+  price?: string | number;
+  cost_price: string | number;
+  weight: string | number;
   dimensions: string;
   warranty_period: number;
-  stock_quantity?: number; // Add stock_quantity field
+  stock_quantity?: number;
   is_featured: boolean;
   status: "active" | "inactive";
-  rating_average: string;
+  rating_average: string | number;
   rating_count: number;
   meta_title: string;
   meta_description: string;
-  image_url?: string; // Thêm field cho URL hình ảnh
-  product_image?: string[] | null; // Add product_image field
-  images?: Array<{ id: number; image_url: string; alt_text?: string; is_primary: boolean }>; // Add images field from API response
-  variants?: Array<{ id: number; storage?: string; color?: string; image_url?: string; price?: string; stock_quantity?: number; is_active?: boolean }>; // Add variants field
+  image_url?: string;
+  product_image?: string[] | null;
+  images?: Array<{ id: number; image_url: string; alt_text?: string; is_primary: boolean }>;
+  variants?: Array<{ id: number; storage?: string; color?: string; image_url?: string; price?: string; stock_quantity?: number; is_active?: boolean }>;
   createdAt: string;
   updatedAt: string;
   category_name: string;
@@ -41,6 +40,7 @@ export interface ProductResponse<T> {
   status: "success" | "error";
   message: string;
   data: T[];
+  total?: number;
 }
 
 export interface SingleProductResponse<T> {

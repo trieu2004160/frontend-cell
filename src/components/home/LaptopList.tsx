@@ -40,8 +40,7 @@ const LaptopList = () => {
   const fetchProducts = async () => {
     try {
       const result = await productApi.getAll({
-        all: true,
-        category_id: laptopCategoryId, // Chỉ lấy sản phẩm laptop
+        category_id: laptopCategoryId, // Chỉ lấy sản phẩm laptop (category 11)
       });
       setDataProducts(sliceArray(result.data, 2));
     } catch (error) {

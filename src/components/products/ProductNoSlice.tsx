@@ -9,6 +9,7 @@ import {
 import { useRef } from "react";
 import type { CarouselRef } from "antd/es/carousel";
 import { calculateDisplayPrices } from "../../utils/priceHelpers";
+import { useNavigate } from "react-router-dom";
 
 interface ProductHomeProps {
   title?: string;
@@ -23,6 +24,7 @@ const ProductNoSlice = ({
   suggest = false,
 }: ProductHomeProps) => {
   const carouselRef = useRef<CarouselRef>(null);
+  const navigate = useNavigate();
 
   const handlePrev = () => {
     carouselRef.current?.prev();
@@ -113,7 +115,10 @@ const ProductNoSlice = ({
           <Carousel {...setting}>
             {list.map((item, index) => (
               <div key={index} className="px-1 my-4 relative">
-                <div className="bg-white flex flex-col gap-y-4 rounded-lg p-3 shadow-lg cursor-pointer">
+                <div
+                  className="bg-white flex flex-col gap-y-4 rounded-lg p-3 shadow-lg cursor-pointer"
+                  onClick={() => navigate(`/dtdd/${item.slug}`)}
+                >
                   {item.image_url ? (
                     <img
                       src={item.image_url}

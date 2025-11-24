@@ -21,7 +21,9 @@ const HouseHoldList = () => {
   ];
   const fetchProducts = async () => {
     try {
-      const result = await productApi.getAll({ all: true });
+      // Household appliances category doesn't exist yet
+      // Using non-existent category will return empty array
+      const result = await productApi.getAll({ category_id: "997" });
       setDataProducts(result.data);
     } catch (error) {
       console.log(error);

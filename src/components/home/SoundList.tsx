@@ -21,7 +21,9 @@ const SoundList = () => {
   ];
   const fetchProducts = async () => {
     try {
-      const result = await productApi.getAll();
+      // Lấy sản phẩm từ category "Tai nghe" (id=8)
+      // Hiện tại chưa có sản phẩm nào trong category này
+      const result = await productApi.getAll({ category_id: "8" });
       setDataProducts(result.data);
     } catch (error) {
       console.log(error);

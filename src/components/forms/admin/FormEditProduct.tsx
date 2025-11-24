@@ -17,8 +17,14 @@ import type {
   BrandResponse,
   BrandSelect,
 } from "../../../types/api/BrandResponse";
+import VariantManager from "../../admin/variants/VariantManager";
 
-const FormCreateProduct = () => {
+interface FormEditProductProps {
+  initialValues: ProductProps;
+  id: string | number;
+}
+
+const FormEditProduct = ({ initialValues, id }: FormEditProductProps) => {
   const navigate = useNavigate();
   const [allCategories, setAllCategories] = useState<
     CategoryResponse<CategoryTree>["data"]
@@ -27,13 +33,18 @@ const FormCreateProduct = () => {
     []
   );
   const { showSuccess, showError, contextHolder } = useMessage();
+  const [form] = Form.useForm();
+
+  useEffect(() => {
+    form.setFieldsValue(initialValues);
+  }, [initialValues, form]);
 
   const handleFinish = async (value: ProductProps) => {
     try {
-      console.log("Submitting values:", value);
-      const result = await productApi.create(value);
+      console.log("Updating values:", value);
+      const result = await productApi.update(id, value);
       console.log(result);
-      showSuccess("Create product successfully!");
+      showSuccess("Update product successfully!");
       setTimeout(() => {
         navigate(-1);
       }, 1500);
@@ -73,21 +84,11 @@ const FormCreateProduct = () => {
       {contextHolder}
       <div className="bg-[#f5f5f5] rounded-lg p-4 mt-4 mb-[2rem]">
         <Form<ProductProps>
+          form={form}
           labelCol={{ span: 24 }}
           wrapperCol={{ span: 24 }}
           onFinish={handleFinish}
-          initialValues={{
-            original_price: 0,
-            sale_price: 0,
-            cost_price: 0,
-            rating_average: 0,
-            rating_count: 0,
-            warranty_period: 12,
-            weight: 0,
-            is_featured: false,
-            status: "active",
-            dimensions: "10x10x10",
-          }}
+          initialValues={initialValues}
         >
           <div className="flex bg-[#f5f5f5] gap-x-4 flex-col md:flex-row">
             <div className=" w-full md:w-1/2 rounded-lg">
@@ -324,6 +325,12 @@ const FormCreateProduct = () => {
               </div>
             </div>
           </div>
+
+          {/* Product Variants Section */}
+          <div className="bg-white rounded-lg p-6 mt-6">
+            <VariantManager productId={id} productName={initialValues.name} />
+          </div>
+
           <Form.Item>
             <div className="flex items-center justify-end gap-x-4 mt-[2rem]">
               <ButtonCellphoneS
@@ -334,7 +341,7 @@ const FormCreateProduct = () => {
               />
               <ButtonCellphoneS
                 htmlType="submit"
-                children="Create"
+                children="Update"
                 className="w-[6rem] text-white"
               />
             </div>
@@ -345,4 +352,4 @@ const FormCreateProduct = () => {
   );
 };
 
-export default FormCreateProduct;
+export default FormEditProduct;

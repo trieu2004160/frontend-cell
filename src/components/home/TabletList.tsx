@@ -28,14 +28,13 @@ const TabletList = () => {
       try {
         setLoading(true);
         setError(null);
-        console.log("Fetching products from API...");
-        const result = await productApi.getAll({ all: true });
-        console.log("API Response:", result);
+        // Tablet category doesn't exist yet (would be category 13 or similar)
+        // Fetching from non-existent category will return empty array
+        const result = await productApi.getAll({ category_id: "999" });
         setDataProducts(result.data);
       } catch (error) {
         console.error("Error fetching products from API:", error);
-        setError("Không thể kết nối API. Vui lòng kiểm tra backend server.");
-        setDataProducts([]); // Clear data nếu có lỗi
+        setDataProducts([]); // Show empty list
       } finally {
         setLoading(false);
       }

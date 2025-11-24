@@ -1,7 +1,7 @@
 import type { BreadcrumbItemType } from "antd/es/breadcrumb/Breadcrumb";
 import { Link, useNavigate } from "react-router-dom";
 import BreadcrumbAmin from "../../../components/admin/BreadcrumbAmin";
-import { Input, Tag, type TableProps } from "antd";
+import { Input, Tag, type TableProps, Modal } from "antd";
 import { IoIosSearch } from "react-icons/io";
 import DisplaStatistic, {
   type ListInforProps,
@@ -17,11 +17,17 @@ import { IoAddCircleOutline } from "react-icons/io5";
 import TableAdmin from "../../../components/admin/templates/TableAdmin";
 import { MdDeleteOutline, MdOutlineModeEdit } from "react-icons/md";
 import { productApi } from "../../../utils/api/product.api";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import type { ProductProps } from "../../../types/api/ProductResponse";
+import { useMessage } from "../../../hooks/useMessage";
 
 const ListProduct = () => {
   const navigate = useNavigate();
+  const { showSuccess, showError, contextHolder } = useMessage();
+  const [dataProducts, setDataProducts] = useState<ProductProps[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
   const item: BreadcrumbItemType[] = [
     {
       title: <Link to="/admin">Dashboard</Link>,
@@ -31,28 +37,75 @@ const ListProduct = () => {
     },
   ];
 
-  const listInfor: ListInforProps[] = [
-    {
-      title: "Total Products",
-      numbers: 245,
-      icon: <AiOutlineDesktop />,
-    },
-    {
-      title: " Active Products",
-      numbers: 366,
-      icon: <AiOutlineException />,
-    },
-    {
-      title: "Out-of-stock",
-      numbers: 356,
-      icon: <AiOutlineHistory />,
-    },
-    {
-      title: "Top Rated",
-      numbers: 45,
-      icon: <AiOutlinePieChart />,
-    },
-  ];
+  const fetchProducts = async () => {
+    try {
+      const result = await productApi.getAll({ all: true });
+      setDataProducts(result.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const showDeleteConfirm = (id: string) => {
+    setDeleteId(id);
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await productApi.delete(deleteId);
+      showSuccess("Delete product successfully!");
+      fetchProducts();
+      setIsModalOpen(false);
+      setDeleteId(null);
+    } catch (error) {
+      console.log(error);
+      showError((error as any).message || "Failed to delete product");
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setIsModalOpen(false);
+    setDeleteId(null);
+  };
+
+  const listInfor: ListInforProps[] = useMemo(() => {
+    const totalProducts = dataProducts.length;
+    const activeProducts = dataProducts.filter(
+      (p) => p.status === "active"
+    ).length;
+    const outOfStock = dataProducts.filter(
+      (p) => !p.stock_quantity || p.stock_quantity === 0
+    ).length;
+    const topRated = dataProducts.filter(
+      (p) => Number(p.rating_average) >= 4.5
+    ).length;
+
+    return [
+      {
+        title: "Total Products",
+        numbers: totalProducts,
+        icon: <AiOutlineDesktop />,
+      },
+      {
+        title: " Active Products",
+        numbers: activeProducts,
+        icon: <AiOutlineException />,
+      },
+      {
+        title: "Out-of-stock",
+        numbers: outOfStock,
+        icon: <AiOutlineHistory />,
+      },
+      {
+        title: "Top Rated",
+        numbers: topRated,
+        icon: <AiOutlinePieChart />,
+      },
+    ];
+  }, [dataProducts]);
+
   const columns: TableProps["columns"] = [
     {
       title: "ID",
@@ -192,44 +245,44 @@ const ListProduct = () => {
     },
     {
       title: "Created At",
-      dataIndex: "createdAt",
-      render: (value: string) => new Date(value).toLocaleString("vi-VN"),
+      dataIndex: "created_at",
+      render: (value: string) => value ? new Date(value).toLocaleString("vi-VN") : "N/A",
     },
     {
       title: "Updated At",
-      dataIndex: "updatedAt",
-      render: (value: string) => new Date(value).toLocaleString("vi-VN"),
+      dataIndex: "updated_at",
+      render: (value: string) => value ? new Date(value).toLocaleString("vi-VN") : "N/A",
     },
     {
       title: "Action",
       key: "action",
-      render: () => (
+      render: (record: ProductProps) => (
         <div className="flex items-center gap-x-3">
-          <div className="rounded-full flex items-center justify-center border-[1px] border-[#0fb981] p-1 cursor-pointer">
+          <div
+            className="rounded-full flex items-center justify-center border-[1px] border-[#0fb981] p-1 cursor-pointer"
+            onClick={() => navigate(`/admin/products/${record.id}/edit`)}
+          >
             <MdOutlineModeEdit className="text-[#0fb981] text-[0.9rem]" />
           </div>
-          <div className="rounded-full flex items-center justify-center border-[1px] border-[#d70119] p-1 cursor-pointer">
+          <button
+            className="rounded-full flex items-center justify-center border-[1px] border-[#d70119] p-1 cursor-pointer bg-transparent hover:bg-red-50 transition-colors"
+            onClick={() => showDeleteConfirm(record.id)}
+            type="button"
+          >
             <MdDeleteOutline className="text-[#d70119] text-[0.9rem]" />
-          </div>
+          </button>
         </div>
       ),
     },
   ];
-  const [dataProducts, setDataProducts] = useState<ProductProps[]>([]);
-  const fetchProducts = async () => {
-    try {
-      const result = await productApi.getAll({ all: true });
-      setDataProducts(result.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   useEffect(() => {
     fetchProducts();
   }, []);
+
   return (
     <>
+      {contextHolder}
       <div className="p-4">
         <div className="md:flex items-center justify-between hidden">
           <div>
@@ -285,6 +338,17 @@ const ListProduct = () => {
           </div>
         </div>
       </div>
+      <Modal
+        title="Confirm Delete"
+        open={isModalOpen}
+        onOk={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        okText="Delete"
+        cancelText="Cancel"
+        okButtonProps={{ danger: true }}
+      >
+        <p>Are you sure you want to delete this product?</p>
+      </Modal>
     </>
   );
 };
