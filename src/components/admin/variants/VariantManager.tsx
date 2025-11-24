@@ -242,12 +242,20 @@ const VariantManager: React.FC<VariantManagerProps> = ({ productId }) => {
                         description={
                           <div>
                             <div className="font-semibold text-red-600">
-                              {Number(item.sale_price || 0).toLocaleString("vi-VN")}đ
-                              {item.original_price && Number(item.sale_price) !== Number(item.original_price) && (
-                                <span className="ml-2 text-xs text-gray-400 line-through">
-                                  {Number(item.original_price || 0).toLocaleString("vi-VN")}đ
-                                </span>
+                              {Number(item.sale_price || 0).toLocaleString(
+                                "vi-VN"
                               )}
+                              đ
+                              {item.original_price &&
+                                Number(item.sale_price) !==
+                                  Number(item.original_price) && (
+                                  <span className="ml-2 text-xs text-gray-400 line-through">
+                                    {Number(
+                                      item.original_price || 0
+                                    ).toLocaleString("vi-VN")}
+                                    đ
+                                  </span>
+                                )}
                             </div>
                             <div
                               className="text-xs text-gray-400 truncate"
