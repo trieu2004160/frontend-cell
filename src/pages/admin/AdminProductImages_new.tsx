@@ -23,6 +23,7 @@ import {
 import type { ColumnsType } from "antd/es/table";
 import type { UploadChangeParam } from "antd/es/upload";
 import type { UploadFile } from "antd/es/upload/interface";
+import { productImgaesApi } from "../../utils/api/product_images.api";
 
 interface ProductImage {
   id: number;
@@ -53,46 +54,34 @@ const AdminProductImages: React.FC = () => {
   const fetchImages = useCallback(async () => {
     setLoading(true);
     try {
-      // Mock data for now
-      const mockData: ProductImage[] = [
-        {
-          id: 1,
-          productId: 12,
-          productName: "iPhone 15 Pro Max",
-          imageType: "main",
-          imageUrl:
-            "https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-15-pro-max_3.png",
-          alt: "iPhone 15 Pro Max - Main Image",
-          sortOrder: 1,
-          isActive: true,
-          createdAt: "2024-01-15",
-          updatedAt: "2024-01-15",
-        },
-        {
-          id: 2,
-          productId: 12,
-          productName: "iPhone 15 Pro Max",
-          imageType: "variant",
-          imageUrl:
-            "https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-15-pro-max-blue_2.png",
-          variantInfo: {
-            capacity: "256GB",
-            color: "Blue Titanium",
-          },
-          alt: "iPhone 15 Pro Max - Blue Titanium 256GB",
-          sortOrder: 2,
-          isActive: true,
-          createdAt: "2024-01-15",
-          updatedAt: "2024-01-15",
-        },
-      ];
+      const result = await productImgaesApi.getAll();
+      console.log("Fetched images:", result);
+      
+      // Transform API data to match component interface
+      const transformedData: ProductImage[] = (result.data || []).map((img: any) => ({
+        id: img.id,
+        productId: img.product_id,
+        productName: img.product_name || "Unknown",
+        imageType: img.image_type,
+        imageUrl: img.image_url,
+        variantInfo: img.variant_capacity || img.variant_color ? {
+          capacity: img.variant_capacity,
+          color: img.variant_color,
+        } : undefined,
+        alt: img.alt_text || "",
+        sortOrder: img.sort_order || 0,
+        isActive: img.is_active !== false,
+        createdAt: img.created_at,
+        updatedAt: img.updated_at,
+      }));
 
       const filteredData = selectedProduct
-        ? mockData.filter((img) => img.productId === selectedProduct)
-        : mockData;
+        ? transformedData.filter((img) => img.productId === selectedProduct)
+        : transformedData;
 
       setImages(filteredData);
-    } catch {
+    } catch (error) {
+      console.error("Error fetching images:", error);
       message.error("Có lỗi khi tải dữ liệu!");
     } finally {
       setLoading(false);
@@ -129,42 +118,40 @@ const AdminProductImages: React.FC = () => {
         imageUrl = fileList[0].response.data.url;
       }
 
-      const imageData: Partial<ProductImage> = {
-        ...values,
-        imageUrl,
-        variantInfo: {
-          capacity: values.variantCapacity,
-          color: values.variantColor,
-        },
+      if (!imageUrl) {
+        message.error("Vui lòng nhập URL hoặc upload ảnh!");
+        setLoading(false);
+        return;
+      }
+
+      // Transform data to match backend API format
+      const apiData = {
+        product_id: values.productId,
+        image_type: values.imageType,
+        image_url: imageUrl,
+        alt_text: values.alt,
+        sort_order: values.sortOrder || 0,
+        variant_capacity: values.variantCapacity || null,
+        variant_color: values.variantColor || null,
+        is_active: values.isActive !== false,
       };
 
       if (editingImage) {
-        // Update existing image
-        setImages(
-          images.map((img) =>
-            img.id === editingImage.id
-              ? { ...img, ...imageData, updatedAt: new Date().toISOString() }
-              : img
-          )
-        );
-        message.success("Cập nhật ảnh thành công!");
+        // TODO: Add update API call when backend supports it
+        message.warning("Chức năng cập nhật đang phát triển");
       } else {
         // Create new image
-        const newImage: ProductImage = {
-          id: Date.now(),
-          ...imageData,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        } as ProductImage;
-        setImages([newImage, ...images]);
-        message.success("Thêm ảnh thành công!");
+        const result = await productImgaesApi.create(apiData as any);
+        message.success(result.message || "Thêm ảnh thành công!");
+        await fetchImages(); // Reload data
       }
 
       setIsModalVisible(false);
       form.resetFields();
       setFileList([]);
-    } catch {
-      message.error("Có lỗi xảy ra!");
+    } catch (error: any) {
+      console.error("Error saving image:", error);
+      message.error(error?.response?.data?.message || "Có lỗi xảy ra!");
     } finally {
       setLoading(false);
     }
@@ -172,9 +159,12 @@ const AdminProductImages: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     try {
+      // TODO: Add delete API call when backend supports it
+      // await productImgaesApi.delete(id);
       setImages(images.filter((img) => img.id !== id));
       message.success("Xóa ảnh thành công!");
-    } catch {
+    } catch (error) {
+      console.error("Error deleting image:", error);
       message.error("Có lỗi xảy ra khi xóa ảnh!");
     }
   };
@@ -324,9 +314,15 @@ const AdminProductImages: React.FC = () => {
   ];
 
   const uploadProps = {
-    beforeUpload: () => false, // Prevent auto upload
+    action: "http://localhost:3000/api/upload",
+    name: "file",
     onChange: (info: UploadChangeParam<UploadFile>) => {
       setFileList(info.fileList);
+      if (info.file.status === 'done') {
+        message.success(`${info.file.name} tải lên thành công`);
+      } else if (info.file.status === 'error') {
+        message.error(`${info.file.name} tải lên thất bại`);
+      }
     },
     onRemove: (file: UploadFile) => {
       setFileList(fileList.filter((item) => item.uid !== file.uid));

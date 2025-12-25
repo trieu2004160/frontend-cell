@@ -17,7 +17,7 @@ export const API_URL = {
     GET_BY_SLUG: "/products",
   },
   BRAND: "/brand",
-  PRODUCT_IMAGES: "/product-images",
+  PRODUCT_IMAGES: "/admin/product-images",
   MENU_SMARTPHONE: "/menu",
   MENU_LAPTOP: "/menu/laptop",
   PRODUCT_VARIANT_BY_ID: "/product-variant",

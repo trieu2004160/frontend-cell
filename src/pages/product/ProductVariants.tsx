@@ -97,7 +97,7 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
     return null;
   };
 
-  // Helper function to estimate price based on storage
+  // Helper function to estimate price based on storage (for virtual variants only)
   const estimatePrice = (storage: string): number => {
     const basePrice = 32990000; // iPhone 15 Pro Max 256GB base price
     switch (storage) {
@@ -114,39 +114,6 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
       default:
         return basePrice;
     }
-  };
-
-  // Get color-specific image URL - BẠN CÓ THỂ THAY ĐỔI HÌNH ẢNH TẠI ĐÂY
-  const getColorImageUrl = (color: string): string => {
-    // Normalize color name (case-insensitive)
-    const normalizedColor = color.toLowerCase().trim();
-
-    const colorImageMap: { [key: string]: string } = {
-      // iPhone 15 Pro Max colors
-      natural:
-        "https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-15-pro-max_3.png",
-      blue: "https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-15-pro-max_3.png",
-      white:
-        "https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone15-pro-max-512gb-titan-trang.jpg",
-      black:
-        "https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-15-pro-max_3.png",
-
-      // iPhone 15 Plus colors (Vietnamese names)
-      default:
-        "https://cdnv2.tgdd.vn/mwg-static/tgdd/Products/Images/42/303825/iphone-15-plus-128gb-xanh-1.jpg",
-      đen: "https://cdnv2.tgdd.vn/mwg-static/tgdd/Products/Images/42/303825/iphone-15-plus-black-1-1.jpg",
-      hồng: "https://cdnv2.tgdd.vn/mwg-static/tgdd/Products/Images/42/303825/iphone-15-plus-hong-1.jpg",
-
-      // Standard colors
-      pink: "https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-15-plus-pink.png",
-      yellow:
-        "https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-15-plus-yellow.png",
-    };
-
-    return (
-      colorImageMap[normalizedColor] ||
-      "https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-15-pro-max_3.png"
-    );
   };
 
   // Process variants data
@@ -258,19 +225,16 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
         variant_name: `${storage} ${variant.color || ""}`.trim(),
         capacity: storage,
         price: variant.price?.toString() || "0",
-        image_url: variant.color
-          ? getColorImageUrl(variant.color)
-          : variant.image_url || "",
+        image_url: variant.image_url || "",
       });
     } else if (onVariantChange) {
       // Không có variant thật - tạo virtual variant với giá ước tính
-      const currentColor = selectedVariant?.color || "Natural"; // Sử dụng màu hiện tại hoặc mặc định
       onVariantChange({
         id: -1, // Virtual variant
         variant_name: storage,
         capacity: storage,
         price: estimatePrice(storage).toString(),
-        image_url: getColorImageUrl(currentColor), // Sử dụng hình ảnh theo màu hiện tại
+        image_url: "", // No image for virtual variants
       });
     }
   };
@@ -297,7 +261,7 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
         variant_name: `${variant.storage || ""} ${color}`.trim(),
         capacity: variant.storage || "",
         price: variant.price?.toString() || "0",
-        image_url: getColorImageUrl(color), // Sử dụng hàm getColorImageUrl thay vì variant.image_url
+        image_url: variant.image_url || "",
       });
     } else if (onVariantChange) {
       // Virtual color variant
@@ -307,26 +271,10 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
         variant_name: `${currentStorage} ${color}`.trim(),
         capacity: currentStorage,
         price: estimatePrice(currentStorage).toString(),
-        image_url: getColorImageUrl(color), // Sử dụng hàm getColorImageUrl cho virtual variant
+        image_url: "", // No image for virtual variants
       });
     }
   };
-
-  // Trích xuất dung lượng hiện tại từ tên sản phẩm
-  const getCurrentStorage = (): string => {
-    const match = productName.match(/\b(128GB|256GB|512GB|1TB|2TB)\b/i);
-    if (match) return match[1];
-
-    // Nếu không có trong tên sản phẩm, lấy storage đầu tiên từ variants
-    if (variants && variants.length > 0) {
-      const firstStorage = variants[0]?.storage;
-      if (firstStorage) return firstStorage;
-    }
-
-    return "";
-  };
-
-  const currentStorage = getCurrentStorage();
 
   return (
     <div className="product-variants">
@@ -398,7 +346,7 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
 
                 // SỬ DỤNG DỮ LIỆU THẬT TỪ VARIANT
                 const displayPrice = variant?.price || 0;
-                const imageUrl = variant?.image_url || getColorImageUrl(color);
+                const imageUrl = variant?.image_url || "/images/placeholder.jpg";
 
                 console.log(`🎨 Render Color "${color}":`, {
                   currentStorage,

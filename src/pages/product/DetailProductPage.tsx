@@ -44,6 +44,7 @@ const DetailProductPage = () => {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [productImages, setProductImages] = useState<string[]>([]);
 
   // State for variants
   const [selectedVariant, setSelectedVariant] = useState<{
@@ -134,6 +135,13 @@ const DetailProductPage = () => {
     loadProduct();
   }, [id, slug, navigate]);
 
+  // Update productImages when selectedVariant or product changes
+  useEffect(() => {
+    if (product) {
+      setProductImages(getValidImages());
+    }
+  }, [selectedVariant, product]);
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN").format(price) + "đ";
   };
@@ -141,8 +149,14 @@ const DetailProductPage = () => {
   const getValidImages = () => {
     const validImages: string[] = [];
 
+    // Debug log
+    console.log("🖼️ getValidImages called");
+    console.log("selectedVariant:", selectedVariant);
+    console.log("selectedVariant.image_url:", selectedVariant?.image_url);
+
     // Ưu tiên hình ảnh từ variant được chọn lên đầu
     if (selectedVariant?.image_url) {
+      console.log("✅ Adding variant image:", selectedVariant.image_url);
       validImages.push(selectedVariant.image_url);
     }
 
@@ -249,7 +263,6 @@ const DetailProductPage = () => {
   }
 
   const specifications = getSpecifications();
-  const productImages = getValidImages();
 
   const tabItems = [
     {

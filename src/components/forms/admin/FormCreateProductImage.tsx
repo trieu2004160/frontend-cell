@@ -64,6 +64,7 @@ const FormCreateProductImage = () => {
               label="Product"
               name="product_id"
               className="md:w-[20rem] w-full"
+              rules={[{ required: true, message: 'Please select a product!' }]}
             >
               <Select
                 showSearch
@@ -72,19 +73,27 @@ const FormCreateProductImage = () => {
                 className="h-[2.5rem]"
               />
             </Form.Item>
-            <Form.Item label="Primary" name="is_primary">
+            <Form.Item
+              label="Image Type"
+              name="image_type"
+              rules={[{ required: true, message: 'Please select image type!' }]}
+            >
               <Select
                 options={[
                   {
-                    label: "Yes",
-                    value: true,
+                    label: "Main",
+                    value: "main",
                   },
                   {
-                    label: "No",
-                    value: false,
+                    label: "Gallery",
+                    value: "gallery",
+                  },
+                  {
+                    label: "Variant",
+                    value: "variant",
                   },
                 ]}
-                placeholder="Select primary"
+                placeholder="Select image type"
                 className="h-[2.5rem]"
               />
             </Form.Item>
@@ -92,7 +101,11 @@ const FormCreateProductImage = () => {
               <InputNumber min={0} defaultValue={0} className="py-1 w-[5rem]" />
             </Form.Item>
           </div>
-          <Form.Item label="Alt text" name="alt_text">
+          <Form.Item
+            label="Alt text"
+            name="alt_text"
+            rules={[{ required: true, message: 'Please enter alt text!' }]}
+          >
             <TextArea placeholder="Alt text" rows={4} />
           </Form.Item>
           <Form.Item label="Image" name="image_url">

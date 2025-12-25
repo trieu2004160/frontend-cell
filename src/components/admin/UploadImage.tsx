@@ -35,8 +35,19 @@ const UploadImage = ({
   const onChange: UploadProps<UploadResponse>["onChange"] = async ({
     fileList: newFileList,
   }) => {
-    setImageApi(newFileList[0].response?.data.url);
     setFileList(newFileList);
+
+    // Only update imageApi when upload is complete and successful
+    if (newFileList.length > 0) {
+      const file = newFileList[0];
+      if (file.status === 'done' && file.response?.data?.url) {
+        setImageApi(file.response.data.url);
+      } else if (file.status === 'error') {
+        setImageApi(undefined);
+      }
+    } else {
+      setImageApi(undefined);
+    }
   };
 
   const handlePreview = async (file: UploadFile) => {
@@ -64,8 +75,8 @@ const UploadImage = ({
           wrapperStyle={{ display: "none" }}
           preview={{
             visible: previewOpen,
-            onVisibleChange: (visible) => setPreviewOpen(visible),
-            afterOpenChange: (visible) => !visible && setPreviewImage(""),
+            onVisibleChange: (visible: boolean) => setPreviewOpen(visible),
+            afterOpenChange: (visible: boolean) => !visible && setPreviewImage(""),
           }}
           src={previewImage}
         />

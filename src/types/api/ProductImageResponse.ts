@@ -1,12 +1,15 @@
 export interface ProductImagesProp {
-  id: number;
+  id?: number;
   product_id: number;
+  image_type: 'main' | 'gallery' | 'variant';
   image_url: string | undefined;
   alt_text: string;
   sort_order: number;
-  is_primary: boolean;
-  createdAt: string;
-  updatedAt: string;
+  variant_capacity?: string | null;
+  variant_color?: string | null;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface ProductImageResponse<T> {
