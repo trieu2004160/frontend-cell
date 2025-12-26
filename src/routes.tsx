@@ -4,7 +4,6 @@ import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import HomePage from "./pages/home/HomePage";
 // import SimpleHomePage from "./pages/home/SimpleHomePage";
-import TestPage from "./pages/TestPage";
 import DetailProductPage from "./pages/product/DetailProductPage";
 import SearchPage from "./pages/search/SearchPage";
 import AdminLayout from "./pages/admin/layouts/AdminLayout";
@@ -42,10 +41,6 @@ export const routes = createBrowserRouter([
   {
     path: "/dtdd/:slug",
     element: <DetailProductPage />,
-  },
-  {
-    path: "/test",
-    element: <TestPage />,
   },
   {
     path: "/search",
