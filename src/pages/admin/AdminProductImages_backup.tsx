@@ -68,44 +68,17 @@ const AdminProductImages: React.FC = () => {
     try {
       setLoading(true);
 
-      // Load products
-      setProducts([
-        { id: 1, name: "iPhone 15 Pro Max" },
-        { id: 2, name: "iPhone 15 Pro" },
-        { id: 3, name: "iPhone 15 Plus" },
-        { id: 4, name: "iPhone 15" },
-        { id: 5, name: "Samsung Galaxy S24" },
-      ]);
+      // TODO: Load products từ API
+      // const productsResponse = await axios.get('http://localhost:3000/api/products');
+      // setProducts(productsResponse.data.data);
+      setProducts([]);
 
-      // Load sample images
-      setImages([
-        {
-          id: 1,
-          productId: 1,
-          productName: "iPhone 15 Pro Max",
-          imageType: "main",
-          imageUrl:
-            "https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-15-pro-max_3.png",
-          alt: "iPhone 15 Pro Max - Ảnh chính",
-          sortOrder: 1,
-          isActive: true,
-          createdAt: "2024-01-15",
-        },
-        {
-          id: 2,
-          productId: 1,
-          productName: "iPhone 15 Pro Max",
-          imageType: "variant",
-          imageUrl:
-            "https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/2024_4_16_638488768368578332_2.jpg",
-          variantInfo: { capacity: "256GB", color: "Blue Titanium" },
-          alt: "iPhone 15 Pro Max - Blue Titanium 256GB",
-          sortOrder: 2,
-          isActive: true,
-          createdAt: "2024-01-15",
-        },
-      ]);
-    } catch {
+      // TODO: Load images từ API
+      // const imagesResponse = await axios.get('http://localhost:3000/api/admin/product-images');
+      // setImages(imagesResponse.data.data);
+      setImages([]);
+    } catch (error) {
+      console.error("Lỗi khi tải dữ liệu:", error);
       message.error("Có lỗi khi tải dữ liệu!");
     } finally {
       setLoading(false);

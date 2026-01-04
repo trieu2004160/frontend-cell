@@ -1,8 +1,8 @@
 import { ConfigProvider, Table, type TableProps } from "antd";
 
-type TableAdminProps = TableProps;
-
-const TableAdmin = ({ ...props }: TableAdminProps) => {
+const TableAdmin = <RecordType extends object = any>(
+  props: TableProps<RecordType>
+) => {
   return (
     <>
       <ConfigProvider

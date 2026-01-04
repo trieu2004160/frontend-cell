@@ -11,10 +11,12 @@ import type { CarouselRef } from "antd/es/carousel";
 import { calculateDisplayPrices } from "../../utils/priceHelpers";
 import { useNavigate } from "react-router-dom";
 
+import type { VariantForHomepage } from "../../utils/api/variant_homepage.api";
+
 interface ProductHomeProps {
   title?: string;
   brand?: { name: string }[];
-  list: ProductProps[];
+  list: (ProductProps | VariantForHomepage)[];
   suggest?: boolean;
 }
 const ProductNoSlice = ({
@@ -117,12 +119,18 @@ const ProductNoSlice = ({
               <div key={index} className="px-1 my-4 relative">
                 <div
                   className="bg-white flex flex-col gap-y-4 rounded-lg p-3 shadow-lg cursor-pointer"
-                  onClick={() => navigate(`/dtdd/${item.slug}`)}
+                  onClick={() => {
+                    if ('variant_id' in item) {
+                      navigate(`/dtdd/${item.slug}?variantId=${item.variant_id}`);
+                    } else {
+                      navigate(`/dtdd/${item.slug}`);
+                    }
+                  }}
                 >
                   {item.image_url ? (
                     <img
                       src={item.image_url}
-                      alt={item.name || "Product image"}
+                      alt={'display_name' in item ? item.display_name : item.name || "Product image"}
                       className="object-contain hover:scale-105 duration-500"
                     />
                   ) : (
@@ -131,7 +139,7 @@ const ProductNoSlice = ({
                     </div>
                   )}
                   <div className="h-[2rem] font-bold">
-                    <span>{item.name}</span>
+                    <span>{'display_name' in item ? item.display_name : item.name}</span>
                   </div>
                   <p className="flex items-center gap-x-1">
                     {(() => {
@@ -166,18 +174,16 @@ const ProductNoSlice = ({
                       </span>
                     </div>
                     <div
-                      className={`bg-[#EFE9FE] flex items-center p-1 rounded-md ${
-                        suggest && `hidden`
-                      }`}
+                      className={`bg-[#EFE9FE] flex items-center p-1 rounded-md ${suggest && `hidden`
+                        }`}
                     >
                       <span className="text-[#421d95] text-[0.7rem]">
                         S-Student giảm thêm 300.000đ
                       </span>
                     </div>
                     <div
-                      className={`bg-[#F2F2F3] rounded-md p-1 ${
-                        suggest && `hidden`
-                      }`}
+                      className={`bg-[#F2F2F3] rounded-md p-1 ${suggest && `hidden`
+                        }`}
                     >
                       <span className="text-[0.7rem]">
                         Không phí chuyển đổi khi trả góp 0% qua thẻ tín dụng kỳ

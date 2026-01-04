@@ -5,6 +5,7 @@ import RegisterPage from "./pages/auth/RegisterPage";
 import HomePage from "./pages/home/HomePage";
 // import SimpleHomePage from "./pages/home/SimpleHomePage";
 import DetailProductPage from "./pages/product/DetailProductPage";
+import VariantDetailPage from "./pages/product/VariantDetailPage";
 import SearchPage from "./pages/search/SearchPage";
 import AdminLayout from "./pages/admin/layouts/AdminLayout";
 import Dashboard from "./pages/admin/dashboard/Dashboard";
@@ -24,6 +25,9 @@ import AdminProductImages from "./pages/admin/AdminProductImages";
 import CreateProductImage from "./pages/admin/product-images/CreateProductImage";
 import EditProductImage from "./pages/admin/product-images/EditProductImage";
 import SmemberPage from "./pages/user/SmemberPage";
+import CartPage from "./pages/cart/CartPage";
+import CheckoutPage from "./pages/checkout/CheckoutPage";
+import PaymentPage from "./pages/checkout/PaymentPage";
 
 export const routes = createBrowserRouter([
   {
@@ -37,6 +41,10 @@ export const routes = createBrowserRouter([
   {
     path: "/product/:id",
     element: <DetailProductPage />,
+  },
+  {
+    path: "/product-variant/:id",
+    element: <VariantDetailPage />,
   },
   {
     path: "/dtdd/:slug",
@@ -57,6 +65,18 @@ export const routes = createBrowserRouter([
   {
     path: "/smember",
     element: <SmemberPage />,
+  },
+  {
+    path: "/cart",
+    element: <CartPage />,
+  },
+  {
+    path: "/checkout",
+    element: <CheckoutPage />,
+  },
+  {
+    path: "/payment",
+    element: <PaymentPage />,
   },
   {
     path: "*",

@@ -111,21 +111,28 @@ const VariantManager: React.FC<VariantManagerProps> = ({ productId }) => {
 
   // Handle delete
   const handleDelete = async (id: number) => {
-    Modal.confirm({
-      title: "Delete Variant",
-      content: "Are you sure you want to delete this variant?",
-      okText: "Delete",
-      okType: "danger",
-      onOk: async () => {
-        try {
-          await variantApi.delete(id);
-          message.success("Variant deleted successfully!");
-          fetchVariants();
-        } catch (error: any) {
-          message.error(error.message || "Failed to delete variant");
-        }
-      },
-    });
+    console.log("=== ATTEMPTING TO DELETE VARIANT ===");
+    console.log("Variant ID:", id);
+    console.log("API URL will be:", `/variants/${id}`);
+
+    try {
+      console.log("Calling API to delete...");
+      const result = await variantApi.delete(id);
+      console.log("Delete API response:", result);
+      message.success("Variant deleted successfully!");
+      await fetchVariants();
+      console.log("Variants reloaded");
+    } catch (error: any) {
+      console.error("=== DELETE ERROR ===");
+      console.error("Full error:", error);
+      console.error("Error response:", error.response);
+      console.error("Error data:", error.response?.data);
+      message.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to delete variant"
+      );
+    }
   };
 
   // Handle set default
@@ -206,13 +213,27 @@ const VariantManager: React.FC<VariantManagerProps> = ({ productId }) => {
                         <Button
                           type="text"
                           icon={<EditOutlined />}
-                          onClick={() => showModal(item)}
+                          onClick={() => {
+                            console.log("Edit clicked, item:", item);
+                            showModal(item);
+                          }}
+                          key="edit"
                         />,
                         <Button
                           type="text"
                           danger
                           icon={<DeleteOutlined />}
-                          onClick={() => handleDelete(item.id!)}
+                          onClick={() => {
+                            console.log("Delete button clicked!");
+                            console.log("Item:", item);
+                            console.log("Item ID:", item.id);
+                            if (!item.id) {
+                              message.error("Invalid variant ID!");
+                              return;
+                            }
+                            handleDelete(item.id);
+                          }}
+                          key="delete"
                         />,
                         !item.is_default && (
                           <Button
@@ -220,6 +241,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({ productId }) => {
                             icon={<StarOutlined />}
                             title="Set as Default"
                             onClick={() => handleSetDefault(item.id!)}
+                            key="star"
                           />
                         ),
                       ].filter(Boolean)}

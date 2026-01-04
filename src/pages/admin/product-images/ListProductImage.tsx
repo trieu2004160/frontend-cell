@@ -1,4 +1,4 @@
-import { Input, Tag, Tooltip, type TableProps } from "antd";
+import { Input, Modal, Tag, Tooltip, message, type TableProps } from "antd";
 import BreadcrumbAmin from "../../../components/admin/BreadcrumbAmin";
 import { IoIosSearch } from "react-icons/io";
 import type { BreadcrumbItemType } from "antd/es/breadcrumb/Breadcrumb";
@@ -27,6 +27,8 @@ const ListProductImage = () => {
   const navigate = useNavigate();
   const [allProductImage, setAllProductImage] =
     useState<ProductImageResponse<ProductImagesProp>["data"]>();
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [deleteImageId, setDeleteImageId] = useState<number | null>(null);
 
   const item: BreadcrumbItemType[] = [
     {
@@ -58,7 +60,7 @@ const ListProductImage = () => {
       icon: <AiOutlinePieChart />,
     },
   ];
-  const columns: TableProps["columns"] = [
+  const columns: TableProps<ProductImagesProp>["columns"] = [
     {
       title: "ID",
       dataIndex: "id",
@@ -105,30 +107,42 @@ const ListProductImage = () => {
     },
     {
       title: "Created At",
-      dataIndex: "createdAt",
+      dataIndex: "created_at",
       render: (date: string) => (
-        <span>{new Date(date).toLocaleString("vi-VN")}</span>
+        <span>{date ? new Date(date).toLocaleString("vi-VN") : "N/A"}</span>
       ),
     },
     {
       title: "Updated At",
-      dataIndex: "updatedAt",
+      dataIndex: "updated_at",
       render: (date: string) => (
-        <span>{new Date(date).toLocaleString("vi-VN")}</span>
+        <span>{date ? new Date(date).toLocaleString("vi-VN") : "N/A"}</span>
       ),
     },
     {
       title: "Action",
       key: "action",
-      render: () => (
+      render: (_: any, record: ProductImagesProp) => (
         <div className="flex items-center gap-x-2">
           <Tooltip title="Edit">
-            <div className="rounded-full border border-[#0fb981] p-2 cursor-pointer hover:bg-[#e6f9f3] transition">
+            <div
+              className="rounded-full border border-[#0fb981] p-2 cursor-pointer hover:bg-[#e6f9f3] transition"
+              onClick={() => {
+                console.log("Edit clicked for ID:", record.id);
+                handleEdit(record.id);
+              }}
+            >
               <MdOutlineModeEdit className="text-[#0fb981] text-base" />
             </div>
           </Tooltip>
           <Tooltip title="Delete">
-            <div className="rounded-full border border-[#d70119] p-2 cursor-pointer hover:bg-[#faeaea] transition">
+            <div
+              className="rounded-full border border-[#d70119] p-2 cursor-pointer hover:bg-[#faeaea] transition"
+              onClick={() => {
+                console.log("Delete clicked for record:", record);
+                handleDelete(record.id);
+              }}
+            >
               <MdDeleteOutline className="text-[#d70119] text-base" />
             </div>
           </Tooltip>
@@ -136,6 +150,45 @@ const ListProductImage = () => {
       ),
     },
   ];
+
+  const handleDelete = async (id: number | undefined) => {
+    if (id === undefined || id === null) {
+      message.error("Invalid image ID");
+      return;
+    }
+    setDeleteImageId(id);
+    setDeleteModalVisible(true);
+  };
+
+  const confirmDelete = async () => {
+    if (deleteImageId === null) return;
+
+    try {
+      console.log("Deleting image with ID:", deleteImageId);
+      await productImgaesApi.delete(deleteImageId);
+      message.success("Image deleted successfully");
+      setDeleteModalVisible(false);
+      setDeleteImageId(null);
+      fetchProductImage(); // Refresh the list
+    } catch (error: any) {
+      console.error("Delete error:", error);
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to delete image";
+      message.error(errorMessage);
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteModalVisible(false);
+    setDeleteImageId(null);
+  };
+
+  const handleEdit = (id: number | undefined) => {
+    if (!id) return;
+    navigate(`/admin/product-images/${id}/edit`);
+  };
 
   const fetchProductImage = async () => {
     try {
@@ -207,6 +260,20 @@ const ListProductImage = () => {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        title="Delete Product Image"
+        open={deleteModalVisible}
+        onOk={confirmDelete}
+        onCancel={cancelDelete}
+        okText="Delete"
+        cancelText="Cancel"
+        okButtonProps={{ danger: true }}
+      >
+        <p>Are you sure you want to delete this image?</p>
+        <p>This action cannot be undone.</p>
+      </Modal>
     </>
   );
 };

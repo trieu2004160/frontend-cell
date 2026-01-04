@@ -1,5 +1,6 @@
 import { Carousel } from "antd";
 import type { ProductProps } from "../../types/api/ProductResponse";
+import type { VariantForHomepage } from "../../utils/api/variant_homepage.api";
 import { FaStar } from "react-icons/fa6";
 import { FaRegHeart } from "react-icons/fa6";
 import {
@@ -14,8 +15,9 @@ import { calculateDisplayPrices } from "../../utils/priceHelpers";
 interface ProductHomeProps {
   title: string;
   brand: { name: string }[];
-  list: ProductProps[][];
+  list: (ProductProps | VariantForHomepage)[][];
 }
+
 const ProductHome = ({ title, brand, list }: ProductHomeProps) => {
   const carouselRef = useRef<CarouselRef>(null);
   const navigate = useNavigate();
@@ -28,8 +30,27 @@ const ProductHome = ({ title, brand, list }: ProductHomeProps) => {
     carouselRef.current?.next();
   };
 
-  const handleProductClick = (productId: string | number) => {
-    navigate(`/product/${productId}`);
+  const handleProductClick = (item: ProductProps | VariantForHomepage) => {
+    // Nếu là variant (có variant_id), navigate đến trang variant detail
+    if ('variant_id' in item) {
+      navigate(`/product-variant/${item.variant_id}`);
+    } else {
+      // Nếu là product thường, navigate đến trang product detail
+      navigate(`/product/${item.id}`);
+    }
+  };
+
+  // Helper để lấy tên hiển thị
+  const getDisplayName = (item: ProductProps | VariantForHomepage): string => {
+    if ('display_name' in item) {
+      return item.display_name; // "iPhone 15 Pro 256GB"
+    }
+    return item.name || "";
+  };
+
+  // Helper để lấy rating
+  const getRating = (item: ProductProps | VariantForHomepage): number => {
+    return item.rating_average || 0;
   };
 
   const setting = {
@@ -126,12 +147,12 @@ const ProductHome = ({ title, brand, list }: ProductHomeProps) => {
                     <div
                       key={index}
                       className="flex flex-col gap-y-3 w-full rounded-lg p-3 shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
-                      onClick={() => handleProductClick(item.id)}
+                      onClick={() => handleProductClick(item)}
                     >
                       {item.image_url ? (
                         <img
                           src={item.image_url}
-                          alt={item.name || "Product image"}
+                          alt={getDisplayName(item)}
                           className="object-contain hover:scale-105 duration-500"
                         />
                       ) : (
@@ -140,7 +161,7 @@ const ProductHome = ({ title, brand, list }: ProductHomeProps) => {
                         </div>
                       )}
                       <div className="font-bold h-[2rem]">
-                        <span>{item.name}</span>
+                        <span>{getDisplayName(item)}</span>
                       </div>
                       <p className="flex items-center gap-x-1 whitespace-normal">
                         {(() => {
@@ -193,7 +214,7 @@ const ProductHome = ({ title, brand, list }: ProductHomeProps) => {
                       <div className="flex justify-between">
                         <div className="flex items-center gap-x-1">
                           <FaStar className="text-[#ffd531]" />
-                          <span>{item.rating_average}</span>
+                          <span>{getRating(item)}</span>
                         </div>
                         <div className="flex items-center gap-x-1">
                           <FaRegHeart className="text-[#3c82f6]" />

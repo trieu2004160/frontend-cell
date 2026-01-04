@@ -17,6 +17,8 @@ export interface ProductVatiantProp {
   checked?: boolean;
   createdAt: string;
   updatedAt: string;
+  original_price?: number;
+  cart_item_id?: number | string;
 }
 
 export interface ProductVariantResponse<T> {

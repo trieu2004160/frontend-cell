@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react";
 import ProductNoSlice from "../products/ProductNoSlice";
 import StarIcon from "../svg/StarIcon";
-import { productApi } from "../../utils/api/product.api";
-import type { ProductProps } from "../../types/api/ProductResponse";
+import { variantHomepageApi } from "../../utils/api/variant_homepage.api";
 
 const SuggestForYou = () => {
-  const [dataProducts, setDataProducts] = useState<ProductProps[]>([]);
+  const [dataProducts, setDataProducts] = useState<any[]>([]);
 
   const fetchProducts = async () => {
     try {
-      const result = await productApi.getAll({ all: true });
+      const result = await variantHomepageApi.getForHomepage({ limit: 20 });
       setDataProducts(result.data);
     } catch (error) {
       console.log(error);

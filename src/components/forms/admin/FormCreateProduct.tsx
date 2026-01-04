@@ -77,9 +77,6 @@ const FormCreateProduct = () => {
           wrapperCol={{ span: 24 }}
           onFinish={handleFinish}
           initialValues={{
-            original_price: 0,
-            sale_price: 0,
-            cost_price: 0,
             rating_average: 0,
             rating_count: 0,
             warranty_period: 12,
@@ -116,54 +113,7 @@ const FormCreateProduct = () => {
                 >
                   <Input placeholder="Sku" className="h-[2.5rem]" />
                 </Form.Item>
-                <Form.Item
-                  label="Original Price"
-                  name="original_price"
-                  rules={[
-                    { required: true, message: "Original price is required!" },
-                  ]}
-                  className="md:flex-[1_1_calc(33.333%-1rem)] w-full"
-                >
-                  <InputNumber
-                    addonAfter="VND"
-                    min={0}
-                    className=""
-                    size="large"
-                    controls={false}
-                    formatter={(value) => value}
-                    parser={(value) => value}
-                  />
-                </Form.Item>
-                <Form.Item<ProductProps>
-                  label="Sale price"
-                  name="sale_price"
-                  className="md:flex-[1_1_calc(33.333%-1rem)] w-full"
-                >
-                  <InputNumber
-                    addonAfter="VND"
-                    min={0}
-                    className=""
-                    size="large"
-                    controls={false}
-                    formatter={(value) => value}
-                    parser={(value) => value}
-                  />
-                </Form.Item>
-                <Form.Item
-                  label="Cost price"
-                  name="cost_price"
-                  className="md:flex-[1_1_calc(33.333%-1rem)] w-full"
-                >
-                  <InputNumber
-                    addonAfter="VND"
-                    min={0}
-                    className=""
-                    size="large"
-                    controls={false}
-                    formatter={(value) => value}
-                    parser={(value) => value}
-                  />
-                </Form.Item>
+                {/* Giá sẽ được lấy từ variants, không cần nhập khi tạo sản phẩm */}
                 <Form.Item
                   label="Rating average"
                   name="rating_average"

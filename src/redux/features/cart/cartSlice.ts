@@ -12,7 +12,41 @@ const initialState: CartState = {
 };
 
 export const fetchCart = createAsyncThunk("cart/fetchCart", async () => {
-    return await cartItemApi.getAll();
+    try {
+        const response = await cartItemApi.getAll();
+        const ids: number[] = [];
+        let totalCart: number = 0;
+        let cartItem: any[] = [];
+
+        if (Array.isArray(response.data)) {
+            response.data.forEach((item) => {
+                ids.push(Number(item.variant_id));
+            });
+        }
+
+        if (ids.length > 0) {
+            const variant = await productVariantApi.getVariantByIds(ids);
+            if (Array.isArray(variant.data)) {
+                cartItem = variant.data.map((item: any) => {
+                    const cartEntry = (response.data as CartItemProps[]).find(c => Number(c.variant_id) === Number(item.id));
+                    return {
+                        ...item,
+                        quantity: cartEntry ? cartEntry.quantity : 1,
+                        checked: true,
+                    };
+                });
+                totalCart = cartItem.length;
+            }
+        }
+
+        return {
+            data: response.data,
+            cartItem,
+            totalCart,
+        };
+    } catch (error) {
+        throw error;
+    }
 });
 
 export const fetchCartById = createAsyncThunk(
@@ -25,16 +59,30 @@ export const fetchCartById = createAsyncThunk(
 
         if (Array.isArray(result.data)) {
             result.data.forEach((item) => {
-                ids.push(Number(item.variant_id));
+                const variantId = Number(item.variant_id);
+                if (!ids.includes(variantId)) {
+                    ids.push(variantId);
+                }
             });
         }
+        
         if (ids.length > 0) {
             const variant = await productVariantApi.getVariantByIds(ids);
+            
             if (Array.isArray(variant.data)) {
-                cartItem = variant.data.map((item) => ({ ...item, checked: false }));
+                cartItem = variant.data.map((item: any) => {
+                    const cartEntry = (result.data as CartItemProps[]).find(c => Number(c.variant_id) === Number(item.id));
+                    return {
+                        ...item,
+                        cart_item_id: cartEntry?.id,
+                        quantity: cartEntry ? cartEntry.quantity : 1,
+                        checked: false
+                    };
+                });
                 totalCart = cartItem.length;
             }
         }
+        
         return {
             totalCart,
             cartItem,
@@ -83,7 +131,7 @@ export const cartSlice = createSlice({
                 }));
             } else {
                 state.cartItem = state.cartItem.map((item) =>
-                    item.id === action.payload
+                    String(item.cart_item_id) === String(action.payload)
                         ? { ...item, checked: !item.checked }
                         : item
                 );
@@ -95,6 +143,8 @@ export const cartSlice = createSlice({
             if (Array.isArray(action.payload.data)) {
                 state.items = action.payload.data;
             }
+            state.cartItem = action.payload.cartItem;
+            state.totalCart = action.payload.totalCart;
         });
         builder.addCase(fetchCartById.fulfilled, (state, action) => {
             state.totalCart = action.payload.totalCart;
@@ -106,7 +156,7 @@ export const cartSlice = createSlice({
         builder.addCase(updateCartItemQuantity.fulfilled, (state, action) => {
             state.cartItem = state.cartItem.map((item) => {
                 if (!Array.isArray(action.payload.data)) {
-                    if (Number(item.id) === Number(action.payload.data.id)) {
+                    if (String(item.cart_item_id) === String(action.payload.data.id)) {
                         return { ...item, quantity: action.payload.data.quantity };
                     }
                     return item;
@@ -118,10 +168,10 @@ export const cartSlice = createSlice({
             if (!Array.isArray(action.payload.data)) {
                 const deletedCart = action.payload.data as CartItemProps;
                 state.cartItem = state.cartItem.filter(
-                    (item) => Number(item.id) !== Number(deletedCart.id)
+                    (item) => String(item.cart_item_id) !== String(deletedCart.id)
                 );
+                state.totalCart = Math.max(0, state.totalCart - 1);
             }
-            state.totalCart -= 1;
         });
     },
 });

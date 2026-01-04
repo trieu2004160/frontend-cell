@@ -26,6 +26,7 @@ import { FaRegUserCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import "./HeaderHome.css";
 import Svgoto from "../svg/Svgoto";
+import { useAppSelector } from "../../redux/app/hook";
 
 interface MarqueeProps {
   icon: JSX.Element;
@@ -38,12 +39,17 @@ const HeaderHome = () => {
   const isAuthenticated = !!userInfo;
   const user = userInfo ? JSON.parse(userInfo) : null;
 
+  // Get cart count from Redux
+  const { totalCart } = useAppSelector((state) => state.cart);
+
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [openLogin, setOpenLogin] = useState<boolean>(false);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
-  const [isLocationModalOpen, setIsLocationModalOpen] = useState<boolean>(false);
-  const [selectedLocation, setSelectedLocation] = useState<string>("Hồ Chí Minh");
+  const [isLocationModalOpen, setIsLocationModalOpen] =
+    useState<boolean>(false);
+  const [selectedLocation, setSelectedLocation] =
+    useState<string>("Hồ Chí Minh");
 
   // Notification tabs items
   const notificationTabItems: TabsProps["items"] = [
@@ -305,7 +311,9 @@ const HeaderHome = () => {
                     <GrMapLocation className="text-[1.5rem]" />
                     <div className="flex flex-col items-start leading-tight">
                       <p className="text-[0.65rem]">Xem giá tại</p>
-                      <p className="text-[0.8rem] font-bold">{selectedLocation}</p>
+                      <p className="text-[0.8rem] font-bold">
+                        {selectedLocation}
+                      </p>
                     </div>
                     <IoIosArrowDown className="text-[1.2rem]" />
                   </div>
@@ -319,17 +327,22 @@ const HeaderHome = () => {
                 onPressEnter={(e) => {
                   const value = (e.target as HTMLInputElement).value;
                   if (value.trim()) {
-                    navigate(`/search?search=${encodeURIComponent(value.trim())}`);
+                    navigate(
+                      `/search?search=${encodeURIComponent(value.trim())}`
+                    );
                   }
                 }}
               />
               <div className="hidden md:block">
                 <div className="md:flex md:items-center md:gap-x-4">
-                  <div className="md:flex md:items-center md:gap-x-2 md:text-white  ">
+                  <div
+                    className="md:flex md:items-center md:gap-x-2 md:text-white cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => navigate("/cart")}
+                  >
                     <p className="whitespace-nowrap md:text-[0.9rem]">
                       Giỏ hàng
                     </p>
-                    <Badge size="small" count={5}>
+                    <Badge size="small" count={totalCart}>
                       <FiShoppingCart className="text-white text-[1.5rem]" />
                     </Badge>
                   </div>
@@ -393,7 +406,7 @@ const HeaderHome = () => {
               selectedLocation={selectedLocation}
               onSelectLocation={setSelectedLocation}
             />
-            <Badge size="small" count={5} className="md:hidden">
+            <Badge size="small" count={0} className="md:hidden">
               <GoBell className="text-[1.4rem] text-white" />
             </Badge>
           </div>

@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import ProductHome from "../products/ProductHome";
-import type { ProductProps } from "../../types/api/ProductResponse";
-import { productApi } from "../../utils/api/product.api";
+import { variantHomepageApi, type VariantForHomepage } from "../../utils/api/variant_homepage.api";
 import { sliceArray } from "../../utils/sliceArray";
 
 const SmartphoneList = () => {
-  const [dataProducts, setDataProducts] = useState<ProductProps[][]>([]);
+  const [dataVariants, setDataVariants] = useState<VariantForHomepage[][]>([]);
+  const [loading, setLoading] = useState(false);
+  
   const brand: { name: string }[] = [
     {
       name: "Apple",
@@ -32,25 +33,36 @@ const SmartphoneList = () => {
       name: "TECHO",
     },
   ];
-  const fetchProducts = async () => {
+  
+  const fetchVariants = async () => {
     try {
-      // Lấy sản phẩm từ category "Điện thoại" (id=1)
-      const result = await productApi.getAll({ category_id: "1" });
-      setDataProducts(sliceArray(result.data, 2));
+      setLoading(true);
+      // Lấy variants từ category "Điện thoại" (id=1)
+      // Mỗi variant sẽ hiển thị như 1 sản phẩm riêng
+      const result = await variantHomepageApi.getForHomepage({ category_id: "1" });
+      setDataVariants(sliceArray(result.data, 2));
     } catch (error) {
-      console.log(error);
+      console.log("Error fetching variants:", error);
+      setDataVariants([]);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchProducts();
+    fetchVariants();
   }, []);
+  
+  if (loading) {
+    return <div>Đang tải...</div>;
+  }
+
   return (
     <>
       <div>
         <ProductHome
           title="ĐIỆN THOẠI NỔI BẬT NHẤT"
-          list={dataProducts}
+          list={dataVariants}
           brand={brand}
         />
       </div>

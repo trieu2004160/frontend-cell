@@ -64,7 +64,7 @@ const FormCreateProductImage = () => {
               label="Product"
               name="product_id"
               className="md:w-[20rem] w-full"
-              rules={[{ required: true, message: 'Please select a product!' }]}
+              rules={[{ required: true, message: "Please select a product!" }]}
             >
               <Select
                 showSearch
@@ -76,7 +76,7 @@ const FormCreateProductImage = () => {
             <Form.Item
               label="Image Type"
               name="image_type"
-              rules={[{ required: true, message: 'Please select image type!' }]}
+              rules={[{ required: true, message: "Please select image type!" }]}
             >
               <Select
                 options={[
@@ -101,15 +101,11 @@ const FormCreateProductImage = () => {
               <InputNumber min={0} defaultValue={0} className="py-1 w-[5rem]" />
             </Form.Item>
           </div>
-          <Form.Item
-            label="Alt text"
-            name="alt_text"
-            rules={[{ required: true, message: 'Please enter alt text!' }]}
-          >
-            <TextArea placeholder="Alt text" rows={4} />
-          </Form.Item>
           <Form.Item label="Image" name="image_url">
             <UploadImage setImageApi={handleImageApi} />
+          </Form.Item>
+          <Form.Item label="Alt Text" name="alt_text">
+            <TextArea rows={3} placeholder="Enter alt text for the image" />
           </Form.Item>
           <Form.Item>
             <div className="flex items-center justify-end gap-x-4">

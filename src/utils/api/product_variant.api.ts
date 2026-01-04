@@ -1,4 +1,4 @@
-import axios from "axios";
+import axiosInstance from "../axios";
 import { getProductVariantsFromDB, getProductCapacitiesFromDB } from "./admin.variant.api";
 
 interface ProductVariant {
@@ -39,7 +39,8 @@ interface ProductCapacityResponse {
   capacity: string;
 }
 
-const API_URL = "http://localhost:3000/api";
+// Removed hardcoded API_URL
+
 
 
 
@@ -55,7 +56,7 @@ export const getProductCapacities = async (productId: number): Promise<ProductCa
   }
 
   try {
-    const response = await axios.get(`${API_URL}/product-variants/${productId}/capacities`);
+    const response = await axiosInstance.get(`/product-variants/${productId}/capacities`);
     return response.data;
   } catch {
     console.log('All API calls failed, returning empty capacities');
@@ -87,9 +88,9 @@ export const getProductVariants = async (productId: number, capacity?: string): 
 
   try {
     const url = capacity
-      ? `${API_URL}/product-variants/${productId}?capacity=${capacity}`
-      : `${API_URL}/product-variants/${productId}`;
-    const response = await axios.get(url);
+      ? `/product-variants/${productId}?capacity=${capacity}`
+      : `/product-variants/${productId}`;
+    const response = await axiosInstance.get(url);
     return response.data;
   } catch {
     console.log('All API calls failed, returning empty variants');
@@ -102,7 +103,7 @@ export const productVariantApi = {
   // Get capacities for a product group
   getCapacity: async (group_name: string) => {
     try {
-      const response = await axios.get(`${API_URL}/product-variants/capacities/${group_name}`);
+      const response = await axiosInstance.get(`/product-variants/capacities/${group_name}`);
       return response.data;
     } catch {
       console.log('API call failed for getCapacity, returning empty data');
@@ -119,7 +120,7 @@ export const productVariantApi = {
   getVariantByCapacity: async (capacity: string, group_name: string) => {
     try {
       // First try to get variants from database
-      const response = await axios.get(`${API_URL}/product-variants/capacity/${capacity}/group/${group_name}`);
+      const response = await axiosInstance.get(`/product-variants/capacity/${capacity}/group/${group_name}`);
 
       // If successful, try to get corresponding images from product_images table
       if (response.data.status === 'success' && response.data.data.length > 0) {
@@ -130,7 +131,7 @@ export const productVariantApi = {
 
         // Try to get variant images
         try {
-          const imageResponse = await axios.get(`${API_URL}/admin/product-images/product/${productId}/variant?capacity=${capacity}`);
+          const imageResponse = await axiosInstance.get(`/admin/product-images/product/${productId}/variant?capacity=${capacity}`);
 
           if (imageResponse.data.status === 'success') {
             // Match variants with their images
@@ -172,7 +173,7 @@ export const productVariantApi = {
   // Get variant by ID
   getVariantById: async (id: number) => {
     try {
-      const response = await axios.get(`${API_URL}/product-variants/${id}`);
+      const response = await axiosInstance.get(`/product-variants/${id}`);
       return response.data;
     } catch {
       console.log('API call failed for getVariantById, returning empty data');
@@ -188,7 +189,7 @@ export const productVariantApi = {
   // Get variants by multiple IDs
   getVariantByIds: async (ids: number[]) => {
     try {
-      const response = await axios.get(`${API_URL}/product-variants/many-id`, {
+      const response = await axiosInstance.get(`/product-variants/many-id`, {
         params: { ids: ids.join(",") }
       });
       return response.data;
